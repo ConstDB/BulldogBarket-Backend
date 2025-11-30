@@ -1,11 +1,11 @@
-import express, { Request, Response } from "express";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-import mongoSanitize from "express-mongo-sanitize";
-import hpp from "hpp";
-import cors from "cors";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+import express, { Request, Response } from "express";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import hpp from "hpp";
 import morgan from "morgan";
+import { sanitize } from "./middlewares/sanitize";
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.use(cors({ origin: process.env.CORS_ORIGINS?.split(",") ?? "*", credentials:
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(mongoSanitize());
+app.use(sanitize);
 app.use(hpp());
 
 const limiter = rateLimit({
