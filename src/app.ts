@@ -6,15 +6,16 @@ import helmet from "helmet";
 import hpp from "hpp";
 import morgan from "morgan";
 import { sanitize } from "./middlewares/sanitize";
+import { env } from "./config/env";
 
 const app = express();
 
-if (process.env.NODE_ENV === "development") {
+if (env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGINS?.split(",") ?? "*", credentials: true }));
+app.use(cors({ origin: env.CORS_ORIGINS, credentials: true }));
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
