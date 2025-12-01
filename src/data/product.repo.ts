@@ -7,5 +7,13 @@ export const ProductRepository = {
         const {sellerId, name, stocks, category, type, price, condition, description, images } = data
         const product = await ProductModel.create({sellerId, name, stocks, category, type, price, condition, description, images})
         return product
+    },
+    findOne: async (productId : string): Promise<ProductDoc | null> => {
+        const product = await ProductModel.findById(productId)
+            .populate({
+                path:"sellerId",
+                select: "name avatarUrl"
+            });
+        return product
     }
 }
