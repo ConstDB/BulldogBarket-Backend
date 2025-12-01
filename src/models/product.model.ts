@@ -1,51 +1,49 @@
 import {model, Schema} from "mongoose";
-import { IProduct } from "../types/product";
+import { ProductDoc } from "../types/productDoc";
 
 
-const ProductSchema = new Schema<IProduct>(
+const ProductSchema = new Schema<ProductDoc>(
     {
-        seller_id: {
+        sellerId: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: "User"
         },
         name: {
             type: String,
-            required: true,
+            required: [true, "A product must have a name."],
         },
         stocks: {
             type: Number,
-            required: true,
+            required: [true, "A product must have a stocks"],
         },
         category: {
             type: String,
-            required: true,
+            required: [true, "A product must have a category"],
+        },
+        type: {
+            type: String,
+            enum: ["single", "bulk"],
+            required: true
         },
         price: {
             type: Number,
-            required: true,
+            required: [true, "A product must have a price"],
         },
         condition: {
             type: String,
-            required: true,
+            required: [true, "A product must have a conditon"],
         },
         description: {
             type: String,
-            required: true,
-        },
-        tags:{
-            type: [String],
-            required: true,
+            required: true
         },
         images:{
             type: [String],
-            required: true,
+            required: [true, "A product must have an image"],
         },
-        created_at:{
-            type: Date,
-            required: true,
-        }
-
-    }
-)
-export default model<IProduct>("Product", ProductSchema)
+        createdAt: Date
+    },
+    { timestamps: true}
+);
+export const ProductModel = model<ProductDoc>("Product", ProductSchema)
