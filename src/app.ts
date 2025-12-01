@@ -1,12 +1,13 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import hpp from "hpp";
 import morgan from "morgan";
-import { sanitize } from "./middlewares/sanitize";
 import { env } from "./config/env";
+import { sanitize } from "./middlewares/sanitize";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
@@ -33,6 +34,13 @@ app.use(limiter);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
+});
+
+app.use("/api/v1/auth", authRoutes);
+
+app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
+  // TODO: update this when the global error handler middleware is created
+  res.status(404).json({ message: `Can't find ${req.originalUrl} on this server.` });
 });
 
 // TODO: Error handler middleware, dito sya ilagay sa last pag meron na (app.use(errorHandler))
