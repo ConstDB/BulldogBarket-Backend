@@ -58,4 +58,4 @@ export const NU_COURSES = [
   // --- ARCHITECTURE & OTHERS ---
   "BSArch", // BS Architecture
   "BSCrim", // BS Criminology
-];
+] as const;
