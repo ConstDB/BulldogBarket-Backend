@@ -8,6 +8,7 @@ import morgan from "morgan";
 import { env } from "./config/env";
 import { sanitize } from "./middlewares/sanitize";
 import authRoutes from "./routes/auth.routes";
+import ProductRoutes from "./routes/product.route"
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1", ProductRoutes)
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
   // TODO: update this when the global error handler middleware is created
