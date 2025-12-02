@@ -1,16 +1,17 @@
-import { Request,Response, NextFunction } from "express";
+import { TypedRequest } from "../@types/express";
+import { CreateProductDto } from "../validations/product";
+import { Request, Response, NextFunction } from "express";
 import { CreateProductService, GetProductService } from "../services/product.service";
-import {createProductSchema } from "../validations/product";
-import { ValidateRequest } from "../middlewares/validate";
 import z from "zod";
 
 export const createProduct = async (
-    req: ValidateRequest<z.infer<typeof createProductSchema>>,
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
     try{
-        const product = await CreateProductService(req.body)
+        const data = req.validatedBody as CreateProductDto;
+        const product = await CreateProductService(data)
         res.status(201).json({
             id: product._id,
             name: product.name,
