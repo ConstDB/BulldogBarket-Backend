@@ -1,8 +1,8 @@
-import { TypedRequest } from "../@types/express";
 import { CreateProductDto } from "../validations/product";
 import { Request, Response, NextFunction } from "express";
 import { CreateProductService, GetProductService } from "../services/product.service";
 import z from "zod";
+import { getValidatedBody } from "../utils/request";
 
 export const createProduct = async (
     req: Request,
@@ -10,7 +10,7 @@ export const createProduct = async (
     next: NextFunction
 ) => {
     try{
-        const data = req.validatedBody as CreateProductDto;
+        const data = getValidatedBody<CreateProductDto>(req);
         const product = await CreateProductService(data)
         res.status(201).json({
             id: product._id,

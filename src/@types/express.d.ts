@@ -9,8 +9,5 @@ declare global {
   }
 }
 
-export interface TypedRequest<T> extends Request {
-  validatedBody: T;
-}
 
 export {};
