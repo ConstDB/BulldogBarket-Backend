@@ -1,6 +1,6 @@
 import { UserModel } from "../models/user.model";
 import { UserDoc } from "../types/userDoc";
-import { UserLogin, UserSignup } from "../validations/user";
+import { UserSignup } from "../validations/user";
 
 export const UserRepository = {
   create: async (data: UserSignup): Promise<UserDoc> => {

@@ -4,7 +4,6 @@ import { NU_COURSES } from "../constants/courses";
 import { NU_YEAR_LEVELS } from "../constants/yearLevel";
 import { UserDoc } from "../types/userDoc";
 import { getRandomAdventurerAvatar } from "../utils/dicebear";
-import { hashPassword } from "../utils/hash";
 
 const userSchema = new Schema<UserDoc>(
   {
