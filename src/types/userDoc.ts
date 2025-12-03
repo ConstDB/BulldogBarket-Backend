@@ -15,8 +15,4 @@ export interface UserDoc extends Document {
     messengerLink: string;
   };
   itemsSold: number;
-
-  correctPassword(password: string): Promise<boolean>;
-  passwordChangedAtAfterTokenIssue(JWTTimestamp: number): boolean;
-  createPasswordResetToken(): string;
 }

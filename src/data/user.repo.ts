@@ -9,4 +9,8 @@ export const UserRepository = {
 
     return user;
   },
+
+  findOne: async (studentNumber: string): Promise<UserDoc | null> => {
+    return UserModel.findOne({ studentNumber }).select("+password").lean();
+  },
 };
