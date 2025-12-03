@@ -11,13 +11,16 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
   }
 
   try {
-    const user = await signupUser(parsed.data);
+    const { token, user } = await signupUser(parsed.data);
     res.status(201).json({
-      name: user.name,
-      studentNumber: user.studentNumber,
-      course: user.course,
-      yearLevel: user.yearLevel,
-      campus: user.campus,
+      token,
+      user: {
+        name: user.name,
+        studentNumber: user.studentNumber,
+        course: user.course,
+        yearLevel: user.yearLevel,
+        campus: user.campus,
+      },
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
