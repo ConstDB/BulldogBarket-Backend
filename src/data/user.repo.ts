@@ -1,6 +1,6 @@
 import { UserModel } from "../models/user.model";
 import { UserDoc } from "../types/userDoc";
-import { UserSignup } from "../validations/user";
+import { UserLogin, UserSignup } from "../validations/user";
 
 export const UserRepository = {
   create: async (data: UserSignup): Promise<UserDoc> => {
@@ -8,5 +8,9 @@ export const UserRepository = {
     const user = await UserModel.create({ name, studentNumber, course, campus, yearLevel, password });
 
     return user;
+  },
+
+  findOne: async (studentNumber: string): Promise<UserDoc | null> => {
+    return UserModel.findOne({ studentNumber }).select("+password").lean();
   },
 };
