@@ -41,7 +41,7 @@ const userSchema = new Schema<UserDoc>(
     },
     avatarUrl: {
       type: String,
-      default: getRandomAdventurerAvatar(),
+      default: getRandomAdventurerAvatar,
     },
     socials: {
       messengerLink: { type: String, default: "" },

@@ -6,9 +6,11 @@ import helmet from "helmet";
 import hpp from "hpp";
 import morgan from "morgan";
 import { env } from "./config/env";
+import { globalErrorHandler } from "./middlewares/error.middleware";
 import { sanitize } from "./middlewares/sanitize";
 import authRoutes from "./routes/auth.routes";
-import ProductRoutes from "./routes/product.route"
+import ProductRoutes from "./routes/product.route";
+import { AppError } from "./utils/appError";
 
 const app = express();
 
@@ -38,12 +40,11 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1", ProductRoutes)
+app.use("/api/v1", ProductRoutes);
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
-  // TODO: update this when the global error handler middleware is created
-  res.status(404).json({ message: `Can't find ${req.originalUrl} on this server.` });
+  next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
 });
 
-// TODO: Error handler middleware, dito sya ilagay sa last pag meron na (app.use(errorHandler))
+app.use(globalErrorHandler);
 export default app;
