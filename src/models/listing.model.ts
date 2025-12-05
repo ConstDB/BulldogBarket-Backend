@@ -4,7 +4,7 @@ export const CommentSchema = new Schema(
   {
     user: { type: Types.ObjectId, required: true, ref: "User" },
     message: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, required: true, default: Date.now },
   },
   { _id: false }
 );
