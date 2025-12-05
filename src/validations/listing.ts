@@ -11,18 +11,24 @@ const baseListingSchema = {
     .max(1000, "Description is too long."),
 };
 
-export const singleListingSchema = z.object({
-  type: z.literal("single"),
-  condition: z.string().min(1),
-  ...baseListingSchema,
-});
+export const singleListingSchema = z
+  .object({
+    type: z.literal("single"),
+    condition: z.string().min(1),
+    ...baseListingSchema,
+  })
+  .strict();
 
-export const bulkListingSchema = z.object({
-  type: z.literal("bulk"),
-  stocks: z.number({ error: "Stocks are required." }).int("Stocks must be an integer.").min(0, "Stocks can't be negative."),
-  ...baseListingSchema,
-});
+export const bulkListingSchema = z
+  .object({
+    type: z.literal("bulk"),
+    stocks: z.number({ error: "Stocks are required." }).int("Stocks must be an integer.").min(0, "Stocks can't be negative."),
+    ...baseListingSchema,
+  })
+  .strict();
 
 export const createListingSchema = z.discriminatedUnion("type", [singleListingSchema, bulkListingSchema]);
 
-export type CreateListingDto = z.infer<typeof createListingSchema>;
+export type SingleListing = z.infer<typeof singleListingSchema>;
+export type BulkListing = z.infer<typeof bulkListingSchema>;
+export type CreateListing = z.infer<typeof createListingSchema>;

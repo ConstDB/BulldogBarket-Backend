@@ -1,4 +1,4 @@
-import { CreateProductDto } from "../validations/product";
+import { CreateProductDto } from "../validations/listing";
 import { Request } from "express";
 
 declare global {
@@ -8,6 +8,5 @@ declare global {
     }
   }
 }
-
 
 export {};
