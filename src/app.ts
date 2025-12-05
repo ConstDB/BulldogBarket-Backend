@@ -9,7 +9,7 @@ import { env } from "./config/env";
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { sanitize } from "./middlewares/sanitize";
 import authRoutes from "./routes/auth.routes";
-import ProductRoutes from "./routes/product.route";
+import listingRoutes from "./routes/listing.routes";
 import { AppError } from "./utils/appError";
 
 const app = express();
@@ -40,7 +40,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1", ProductRoutes);
+app.use("/api/v1/listings", listingRoutes);
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
