@@ -9,6 +9,7 @@ import { env } from "./config/env";
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { sanitize } from "./middlewares/sanitize";
 import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
 import listingRoutes from "./routes/listing.routes";
 import { AppError } from "./utils/appError";
 
@@ -41,6 +42,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/listings", listingRoutes);
+app.use("/api/v1/users", userRoutes)
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));

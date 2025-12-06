@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { UserModel } from "../models/user.model";
 import { UserDoc } from "../types/userDoc";
 import { UserSignup } from "../validations/user";
@@ -9,6 +10,10 @@ export const UserRepository = {
 
     return user;
   },
+
+  findById: async (id: Types.ObjectId): Promise<UserDoc | null> =>{
+    return UserModel.findById(id);
+  }, 
 
   findOne: async (studentNumber: string): Promise<UserDoc | null> => {
     return UserModel.findOne({ studentNumber }).select("+password").lean();
