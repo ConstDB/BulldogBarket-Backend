@@ -17,5 +17,17 @@ export const loginSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters."),
 });
 
+export const updateUserProfileSchema = z.object({
+  name: z.string().min(1).optional(),
+  course: z.enum(NU_COURSES).optional(),
+  avatarUrl: z.url("Invalid image URL.").optional(),
+  yearLevel: z.enum(NU_YEAR_LEVELS).optional(),
+  campus: z.enum(NU_CAMPUSES).optional(),
+  socials: z.object({
+    messengerLink: z.url("Invalid Messenger Link").or(z.literal("")).optional()
+  }).optional()
+});
+
+export type updateUserProfile = z.infer<typeof updateUserProfileSchema>;
 export type UserSignup = z.infer<typeof signupSchema>;
 export type UserLogin = z.infer<typeof loginSchema>;
