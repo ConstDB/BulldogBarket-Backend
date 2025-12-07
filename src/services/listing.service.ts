@@ -11,3 +11,8 @@ export const createListingService = async (data: CreateListing, id: Types.Object
 export const getListingsFeedService = async (data: ListingQuery) => {
   return ListingRepository.getFeed(data);
 };
+
+export const upvotesService = async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
+  const upvotes = await ListingRepository.insertUpvote(userId, listingId);
+  return upvotes
+}

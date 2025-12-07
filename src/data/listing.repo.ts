@@ -25,4 +25,12 @@ export const ListingRepository = {
 
     return listings;
   },
+
+  insertUpvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
+    const upvotes = await ListingModel.updateOne(
+      { _id: new Types.ObjectId(listingId)},
+      { $addToSet: { upvotes : new Types.ObjectId(userId)}}
+    )
+    return upvotes;
+  }
 };
