@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createListing, getListingFeed, upvotes } from "../controllers/listing.controller";
+import { createListing, downvotes, getListingFeed, upvotes } from "../controllers/listing.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validate } from "../middlewares/validate";
 import { validateListingQuery } from "../middlewares/validateQuery";
@@ -12,5 +12,6 @@ router.route("/")
   .post(protect, validate(createListingSchema), createListing);
 
 router.route("/:id/upvotes")
-  .patch(protect, upvotes);
+  .patch(protect, upvotes)
+  .delete(protect, downvotes)
 export default router;
