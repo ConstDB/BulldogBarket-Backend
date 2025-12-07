@@ -15,4 +15,5 @@ export interface UserDoc extends Document {
     messengerLink: string;
   };
   itemsSold: number;
+  createdAt?: Date;
 }

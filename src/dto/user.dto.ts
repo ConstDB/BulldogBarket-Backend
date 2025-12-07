@@ -13,3 +13,10 @@ export const toUserReponse = (user: UserDoc | Partial<UserDoc>) => {
     itemsSold: user.itemsSold,
   };
 };
+
+export const toUserProfileResponse = (user: UserDoc) => {
+  return {
+    ...toUserReponse(user),
+    createdAt: user.createdAt
+  }
+}
