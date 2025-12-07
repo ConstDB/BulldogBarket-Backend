@@ -11,3 +11,13 @@ export const createListingService = async (data: CreateListing, id: Types.Object
 export const getListingsFeedService = async (data: ListingQuery) => {
   return ListingRepository.getFeed(data);
 };
+
+export const upvotesService = async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
+  const upvotes = await ListingRepository.upvote(userId, listingId);
+  return upvotes
+}
+
+export const downvotesServices = async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
+  const downvotes = await ListingRepository.downvote(userId, listingId);
+  return downvotes
+}
