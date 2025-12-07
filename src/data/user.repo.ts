@@ -11,8 +11,8 @@ export const UserRepository = {
     return user;
   },
 
-  findById: async (id: Types.ObjectId): Promise<UserDoc | null> =>{
-    return UserModel.findById(id);
+  findById: async (_id: Types.ObjectId): Promise<UserDoc | null> =>{
+    return UserModel.findOne({_id});
   }, 
 
   update: async (id: Types.ObjectId, data: updateUserProfile): Promise<UserDoc | null> => {
