@@ -32,3 +32,23 @@ export const createListingSchema = z.discriminatedUnion("type", [singleListingSc
 export type SingleListing = z.infer<typeof singleListingSchema>;
 export type BulkListing = z.infer<typeof bulkListingSchema>;
 export type CreateListing = z.infer<typeof createListingSchema>;
+
+export const listingQuerySchema = z.object({
+  page: z
+    .string()
+    .optional()
+    .transform((v) => (v ? Number(v) : 1))
+    .pipe(z.number().int().min(1)),
+  limit: z
+    .string()
+    .optional()
+    .transform((v) => (v ? Number(v) : 20))
+    .pipe(z.number().int().min(20).max(50)),
+  sort: z
+    .string()
+    .optional()
+    .transform((v) => v ?? "recent")
+    .pipe(z.enum(["recent", "popular"])),
+});
+
+export type ListingQuery = z.infer<typeof listingQuerySchema>;
