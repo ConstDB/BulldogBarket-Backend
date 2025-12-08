@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { toOrderResponse } from "../dto/order.dto";
 import { createOrderService } from "../services/order.service";
 import { asyncHandler } from "../utils/asyncHandlers";
 
@@ -14,5 +15,5 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     paymentMethod,
   });
 
-  res.status(201).json(order);
+  res.status(201).json(toOrderResponse(order));
 });
