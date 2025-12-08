@@ -10,8 +10,8 @@ export const ListingRepository = {
     return listing;
   },
 
-  findById: async (id: string) => {
-    return ListingModel.findById(id);
+  findById: async (id: string, session?: any) => {
+    return ListingModel.findById(id).session(session);
   },
 
   getFeed: async (options: ListingQuery) => {
@@ -57,21 +57,18 @@ export const ListingRepository = {
 
     return updatedListing;
   },
-  
+
   upvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
     const upvotes = await ListingModel.updateOne(
-      { _id: new Types.ObjectId(listingId)},
-      { $addToSet: { upvotes : new Types.ObjectId(userId)}}
-    )
+      { _id: new Types.ObjectId(listingId) },
+      { $addToSet: { upvotes: new Types.ObjectId(userId) } }
+    );
     return upvotes;
   },
 
   downvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
-    const downvotes = await ListingModel.updateOne(
-      {_id: new Types.ObjectId(listingId)},
-      {$pull : {upvotes : userId}}
-    )
-    
-    return downvotes
-  }
+    const downvotes = await ListingModel.updateOne({ _id: new Types.ObjectId(listingId) }, { $pull: { upvotes: userId } });
+
+    return downvotes;
+  },
 };

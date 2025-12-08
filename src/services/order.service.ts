@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { CreateOrderData, OrderRepository } from "../data/order.repo";
-import { ListingModel } from "../models/listing.model";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
 import { CreateOrder } from "../validations/order";
 
@@ -15,7 +14,7 @@ export const createOrderService = async (data: CreateOrderInput) => {
 
   try {
     const { listingId, meetupLocation, paymentMethod, quantity, buyerId } = data;
-    const listing = await ListingModel.findById(listingId).session(session);
+    const listing = await ListingRepository.findById(listingId, session);
 
     if (!listing) {
       throw new NotFoundError("Listing item not found.");
