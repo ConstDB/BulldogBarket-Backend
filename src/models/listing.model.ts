@@ -41,10 +41,15 @@ export const ListingSchema = new Schema(
       type: String,
       required: true,
     },
-    // ADDITIONAL FIELD FOR BULK
+    status: {
+      type: String,
+      enum: ["available", "sold", "reserved"],
+      default: "available",
+    },
     stocks: {
       type: Number,
-      required: false,
+      required: true,
+      default: 1,
     },
     // ADDITIONAL FIELD FOR SINGLE
     condition: {

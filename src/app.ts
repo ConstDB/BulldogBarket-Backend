@@ -5,13 +5,18 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import hpp from "hpp";
 import morgan from "morgan";
+
 import { env } from "./config/env";
+import { AppError } from "./utils/appError";
+
 import { globalErrorHandler } from "./middlewares/error.middleware";
 import { sanitize } from "./middlewares/sanitize";
+
 import authRoutes from "./routes/auth.routes";
-import userRoutes from "./routes/user.routes";
 import listingRoutes from "./routes/listing.routes";
-import { AppError } from "./utils/appError";
+import offersRoutes from "./routes/offer.routes";
+import orderRoutes from "./routes/order.routes";
+import userRoutes from "./routes/user.routes";
 
 const app = express();
 
@@ -42,7 +47,9 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/listings", listingRoutes);
-app.use("/api/v1/users", userRoutes)
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/offers", offersRoutes);
+app.use("/api/v1/orders", orderRoutes);
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
