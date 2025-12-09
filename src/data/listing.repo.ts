@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { ListingModel } from "../models/listing.model";
 import { ListingDoc } from "../types/listingDoc";
 import { CreateListing, ListingQuery } from "../validations/listing";
-import { ConflictError, NotFoundError } from "../utils/appError";
+import { BadRequestError, ConflictError } from "../utils/appError";
 
 export const ListingRepository = {
   create: async (data: CreateListing, sellerId: Types.ObjectId): Promise<ListingDoc> => {
@@ -33,7 +33,7 @@ export const ListingRepository = {
 
   decrementStock: async (listing: ListingDoc, quantity: number, session?: any): Promise<ListingDoc> => {
     if (quantity <= 0) {
-      throw new ConflictError("Quantity must be greater than 0");
+      throw new BadRequestError("Quantity must be greater than 0");
     }
 
     const updatedListing = await ListingModel.findOneAndUpdate(
@@ -70,5 +70,32 @@ export const ListingRepository = {
     const downvotes = await ListingModel.updateOne({ _id: new Types.ObjectId(listingId) }, { $pull: { upvotes: userId } });
 
     return downvotes;
+  },
+
+  addCommentToListing: async (listingId: string, userId: string, message: string) => {
+    const updatedListing = await ListingModel.findByIdAndUpdate(
+      listingId,
+      {
+        $push: {
+          comments: {
+            user: userId,
+            message,
+            createdAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    )
+      .populate({
+        path: "comments.user",
+        select: "name studentNumber course yearLevel campus avatarUrl",
+      })
+      .select({ comments: { $slice: -1 } });
+
+    if (!updatedListing || !updatedListing.comments[0]) {
+      return null;
+    }
+
+    return updatedListing.comments[0];
   },
 };

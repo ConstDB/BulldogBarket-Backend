@@ -13,8 +13,9 @@ import { globalErrorHandler } from "./middlewares/error.middleware";
 import { sanitize } from "./middlewares/sanitize";
 
 import authRoutes from "./routes/auth.routes";
+import commentRoutes from "./routes/comment.routes";
 import listingRoutes from "./routes/listing.routes";
-import offersRoutes from "./routes/offer.routes";
+import offerRoutes from "./routes/offer.routes";
 import orderRoutes from "./routes/order.routes";
 import userRoutes from "./routes/user.routes";
 
@@ -48,8 +49,9 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/listings", listingRoutes);
 app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/offers", offersRoutes);
+app.use("/api/v1/offers", offerRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/comments", commentRoutes);
 
 app.use("/{*any}", (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
