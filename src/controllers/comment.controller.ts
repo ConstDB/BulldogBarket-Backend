@@ -15,6 +15,14 @@ export const getComments = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(comments);
 });
 
+export const editComment = asyncHandler(async (req: Request, res: Response) => {
+  const { listingId, commentId } = req.validatedParams;
+  const { message } = req.body;
+  const userId = req.user._id.toString();
+  const comment = await CommentService.editComment(listingId, commentId, userId, message);
+  res.status(200).json(comment);
+});
+
 export const deleteComment = asyncHandler(async (req: Request, res: Response) => {
   const { listingId, commentId } = req.validatedParams;
   await CommentService.deleteComment(listingId, commentId, req.user._id.toString());

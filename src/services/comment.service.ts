@@ -32,7 +32,11 @@ export const CommentService = {
     return comments;
   },
 
+  editComment: async (listingId: string, commentId: string, userId: string, message: string) => {
+    return ListingRepository.editComment(listingId, commentId, userId, message);
+  },
+
   deleteComment: async (listingId: string, commentId: string, userId: string) => {
-    await ListingRepository.deleteCommentFromListing(listingId, commentId, userId);
+    await ListingRepository.deleteComment(listingId, commentId, userId);
   },
 };

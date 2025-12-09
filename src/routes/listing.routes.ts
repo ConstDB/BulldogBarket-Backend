@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createComment, deleteComment, getComments } from "../controllers/comment.controller";
+import { createComment, deleteComment, editComment, getComments } from "../controllers/comment.controller";
 import { createListing, downvotes, getListingFeed, upvotes } from "../controllers/listing.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validate } from "../middlewares/validate";
@@ -19,6 +19,9 @@ router
   .post(protect, validateParams(listingIdParamsSchema), createComment)
   .get(protect, validateParams(listingIdParamsSchema), getComments);
 
-router.route("/:listingId/comments/:commentId").delete(protect, validateParams(commentIdParamsSchema), deleteComment);
+router
+  .route("/:listingId/comments/:commentId")
+  .delete(protect, validateParams(commentIdParamsSchema), deleteComment)
+  .patch(protect, validateParams(commentIdParamsSchema), editComment);
 
 export default router;

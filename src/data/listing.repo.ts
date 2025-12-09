@@ -107,7 +107,30 @@ export const ListingRepository = {
     return listing?.comments;
   },
 
-  deleteCommentFromListing: async (listingId: string, commentId: string, userId: string) => {
+  editComment: async (listingId: string, commentId: string, userId: string, message: string) => {
+    const listing = await ListingModel.findOne({ _id: listingId, "comments._id": commentId, "comments.user": userId }).populate({
+      path: "comments.user",
+      select: "name studentNumber course yearLevel campus avatarUrl",
+    });
+
+    if (!listing) {
+      throw new NotFoundError("Listing not found or you are not authorized to edit the comment.");
+    }
+
+    const comment = listing.comments.id(commentId);
+
+    if (!comment) {
+      throw new NotFoundError("Comment not found.");
+    }
+
+    comment.message = message;
+
+    await listing.save();
+
+    return comment;
+  },
+
+  deleteComment: async (listingId: string, commentId: string, userId: string) => {
     const updatedListing = await ListingModel.findOneAndUpdate(
       { _id: listingId, "comments._id": commentId, "comments.user": userId },
       { $pull: { comments: { _id: commentId } } },
