@@ -1,9 +1,9 @@
-import { Document } from "mongoose";
+import { Document, SchemaTimestampsConfig } from "mongoose";
 import { NU_COURSES } from "../constants/courses";
 import { NU_YEAR_LEVELS } from "../constants/yearLevel";
 import { NU_CAMPUSES } from "../constants/campuses";
 
-export interface UserDoc extends Document {
+export interface UserDoc extends Document, SchemaTimestampsConfig{
   name: string;
   studentNumber: string;
   course: (typeof NU_COURSES)[number];
@@ -15,5 +15,4 @@ export interface UserDoc extends Document {
     messengerLink: string;
   };
   itemsSold: number;
-  createdAt?: Date;
 }
