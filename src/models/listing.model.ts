@@ -1,13 +1,10 @@
 import { model, Schema, Types } from "mongoose";
 
-export const CommentSchema = new Schema(
-  {
-    user: { type: Types.ObjectId, required: true, ref: "User" },
-    message: { type: String, required: true },
-    createdAt: { type: Date, required: true, default: Date.now },
-  },
-  { _id: false }
-);
+export const CommentSchema = new Schema({
+  user: { type: Types.ObjectId, required: true, ref: "User" },
+  message: { type: String, required: true },
+  createdAt: { type: Date, required: true, default: Date.now },
+});
 
 export const ListingSchema = new Schema(
   {

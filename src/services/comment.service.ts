@@ -21,4 +21,14 @@ export const CommentService = {
 
     return comment;
   },
+
+  getComments: async (listingId: string) => {
+    const comments = await ListingRepository.getComments(listingId);
+
+    if (!comments) {
+      throw new NotFoundError("Listing or comments not found.");
+    }
+
+    return comments;
+  },
 };

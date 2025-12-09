@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
-import { ListingModel } from "../models/listing.model";
+import { ListingModel, ListingSchema } from "../models/listing.model";
 import { ListingDoc } from "../types/listingDoc";
 import { CreateListing, ListingQuery } from "../validations/listing";
-import { BadRequestError, ConflictError } from "../utils/appError";
+import { BadRequestError, ConflictError, NotFoundError } from "../utils/appError";
 
 export const ListingRepository = {
   create: async (data: CreateListing, sellerId: Types.ObjectId): Promise<ListingDoc> => {
@@ -97,5 +97,13 @@ export const ListingRepository = {
     }
 
     return updatedListing.comments[0];
+  },
+
+  getComments: async (listingId: string) => {
+    const listing = await ListingModel.findById(listingId)
+      .select("comments")
+      .populate("comments.user", "name studentNumber course yearLevel campus avatarUrl");
+
+    return listing?.comments;
   },
 };

@@ -6,7 +6,7 @@ import { validateListingQuery } from "../middlewares/validateQuery";
 import { createListingSchema } from "../validations/listing";
 import { validateParams } from "../middlewares/validateParams";
 import { getCommentsParamsSchema } from "../validations/comment";
-import { createComment } from "../controllers/comment.controller";
+import { createComment, getComments } from "../controllers/comment.controller";
 
 const router = Router();
 
@@ -17,4 +17,5 @@ router.route("/:id/upvotes").patch(protect, upvotes).delete(protect, downvotes);
 router
   .route("/:listingId/comments")
   .post(protect, validateParams(getCommentsParamsSchema), createComment)
+  .get(protect, validateParams(getCommentsParamsSchema), getComments);
 export default router;
