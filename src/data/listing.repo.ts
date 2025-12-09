@@ -106,4 +106,16 @@ export const ListingRepository = {
 
     return listing?.comments;
   },
+
+  deleteCommentFromListing: async (listingId: string, commentId: string, userId: string) => {
+    const updatedListing = await ListingModel.findOneAndUpdate(
+      { _id: listingId, "comments._id": commentId, "comments.user": userId },
+      { $pull: { comments: { _id: commentId } } },
+      { new: true }
+    );
+
+    if (!updatedListing) {
+      throw new NotFoundError("Comment not found or you are not authorized to delete it.");
+    }
+  },
 };

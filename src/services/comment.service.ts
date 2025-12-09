@@ -31,4 +31,8 @@ export const CommentService = {
 
     return comments;
   },
+
+  deleteComment: async (listingId: string, commentId: string, userId: string) => {
+    await ListingRepository.deleteCommentFromListing(listingId, commentId, userId);
+  },
 };

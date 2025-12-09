@@ -1,12 +1,12 @@
 import { Router } from "express";
+import { createComment, deleteComment, getComments } from "../controllers/comment.controller";
 import { createListing, downvotes, getListingFeed, upvotes } from "../controllers/listing.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validate } from "../middlewares/validate";
-import { validateListingQuery } from "../middlewares/validateQuery";
-import { createListingSchema } from "../validations/listing";
 import { validateParams } from "../middlewares/validateParams";
-import { getCommentsParamsSchema } from "../validations/comment";
-import { createComment, getComments } from "../controllers/comment.controller";
+import { validateListingQuery } from "../middlewares/validateQuery";
+import { commentIdParamsSchema, listingIdParamsSchema } from "../validations/comment";
+import { createListingSchema } from "../validations/listing";
 
 const router = Router();
 
@@ -16,6 +16,9 @@ router.route("/:id/upvotes").patch(protect, upvotes).delete(protect, downvotes);
 
 router
   .route("/:listingId/comments")
-  .post(protect, validateParams(getCommentsParamsSchema), createComment)
-  .get(protect, validateParams(getCommentsParamsSchema), getComments);
+  .post(protect, validateParams(listingIdParamsSchema), createComment)
+  .get(protect, validateParams(listingIdParamsSchema), getComments);
+
+router.route("/:listingId/comments/:commentId").delete(protect, validateParams(commentIdParamsSchema), deleteComment);
+
 export default router;

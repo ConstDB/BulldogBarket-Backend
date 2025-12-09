@@ -14,3 +14,9 @@ export const getComments = asyncHandler(async (req: Request, res: Response) => {
   const comments = await CommentService.getComments(listingId);
   res.status(200).json(comments);
 });
+
+export const deleteComment = asyncHandler(async (req: Request, res: Response) => {
+  const { listingId, commentId } = req.validatedParams;
+  await CommentService.deleteComment(listingId, commentId, req.user._id.toString());
+  res.sendStatus(204);
+});
