@@ -22,6 +22,11 @@ export const SavedListingRepository = {
                     })
                     .lean<SavedListingDoc[]>();
         return savedListing;
+    },
+
+    delete: async(buyerId: Types.ObjectId, listingId: Types.ObjectId) => {
+        const savedListing = await SavedListingModel.deleteOne({ buyer: buyerId, listing:listingId });
+        return savedListing;
     }
-}
+};
 
