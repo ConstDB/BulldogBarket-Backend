@@ -47,6 +47,11 @@ const userSchema = new Schema<UserDoc>(
       messengerLink: { type: String, default: "" },
     },
     itemsSold: {
+      // NOTE: we might not need this here anymore, we can move this to listing tho
+      type: Number,
+      default: 0,
+    },
+    totalEarnings: {
       type: Number,
       default: 0,
     },
