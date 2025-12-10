@@ -38,7 +38,7 @@ export const OrderRepository = {
         orderId,
         { status: "cancelled" },
         { new: true, session }
-      ).populate("listing buyer");
+      );
 
       if (!order) {
         throw new NotFoundError("Order not found during cancellation.");
@@ -47,6 +47,49 @@ export const OrderRepository = {
       const listing = await ListingModel.findByIdAndUpdate(
         listingId,
         { $inc: { stocks: quantity }, ...(quantity > 0 && { status: "available" }) },
+        { new: true, session }
+      );
+
+      if (!listing) {
+        throw new NotFoundError("Listing not found during stock restoration.");
+      }
+
+      await session.commitTransaction();
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  },
+
+  sellerCancelOrder: async (
+    orderId: string,
+    listingId: string,
+    quantity: number,
+    cancelReason: string
+  ) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const order = await OrderModel.findByIdAndUpdate(
+        orderId,
+        { status: "cancelled", cancelReason },
+        { new: true, session }
+      );
+
+      if (!order) {
+        throw new NotFoundError("Order not found during cancellation.");
+      }
+
+      const listing = await ListingModel.findByIdAndUpdate(
+        listingId,
+        {
+          $inc: { stocks: quantity },
+          ...(quantity > 0 && { status: "available" }),
+        },
         { new: true, session }
       );
 

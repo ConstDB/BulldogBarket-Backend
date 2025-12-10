@@ -25,3 +25,12 @@ export const buyerCancelOrder = asyncHandler(async (req: Request, res: Response)
   const order = await OrderService.buyerCancelOrder(orderId, buyerId);
   res.status(200).json(toOrderResponse(order));
 });
+
+export const sellerCancelOrder = asyncHandler(async (req: Request, res: Response) => {
+  const { orderId } = req.validatedParams;
+  const { cancelReason } = req.body;
+  const sellerId = req.user._id.toString();
+
+  const order = await OrderService.sellerCancelOrder(orderId, sellerId, cancelReason);
+  res.status(200).json(toOrderResponse(order));
+});

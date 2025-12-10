@@ -76,4 +76,31 @@ export const OrderService = {
 
     return await OrderRepository.buyerCancelOrder(orderId, listingId, quantity);
   },
+
+  sellerCancelOrder: async (orderId: string, sellerId: string, cancelReason: string) => {
+    const order = await OrderRepository.findById(orderId);
+
+    if (!order) {
+      throw new NotFoundError("Order not found.");
+    }
+
+    const listing = await ListingRepository.findById(order.listing.toString());
+
+    if (!listing) {
+      throw new NotFoundError("Listing not found.");
+    }
+
+    if (listing.seller.toString() !== sellerId) {
+      throw new ForbiddenError("You are not the seller of this listing.");
+    }
+
+    if (order.status !== "pending") {
+      throw new BadRequestError("Only pending orders can be cancelled.");
+    }
+
+    const listingId = order.listing.toString();
+    const quantity = order.quantity;
+
+    return await OrderRepository.sellerCancelOrder(orderId, listingId, quantity, cancelReason);
+  },
 };
