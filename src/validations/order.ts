@@ -7,4 +7,8 @@ export const createOrderSchema = z.object({
   paymentMethod: z.enum(["GCash", "Cash on Meetup"]),
 });
 
+export const buyerCancelSchema = z.object({
+  orderId: z.string().min(1, "Order ID is required."),
+});
+
 export type CreateOrder = z.infer<typeof createOrderSchema>;

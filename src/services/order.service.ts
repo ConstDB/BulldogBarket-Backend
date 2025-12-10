@@ -55,4 +55,25 @@ export const OrderService = {
       throw error;
     }
   },
+
+  buyerCancelOrder: async (orderId: string, buyerId: string) => {
+    const order = await OrderRepository.findById(orderId);
+
+    if (!order) {
+      throw new NotFoundError("Order not found.");
+    }
+
+    if (order.buyer.toString() !== buyerId) {
+      throw new ForbiddenError("You cannot cancel someone else's order.");
+    }
+
+    if (order.status !== "pending") {
+      throw new BadRequestError("Only pending orders can be cancelled.");
+    }
+
+    const listingId = order.listing.toString();
+    const quantity = order.quantity;
+
+    return await OrderRepository.buyerCancelOrder(orderId, listingId, quantity);
+  },
 };
