@@ -63,6 +63,12 @@ export const OrderService = {
       throw new NotFoundError("Order not found.");
     }
 
+    if (order.sellerConfirmed) {
+      throw new ConflictError(
+        "You cannot cancel the order because the seller already marked it as completed."
+      );
+    }
+
     if (order.buyer.toString() !== buyerId) {
       throw new ForbiddenError("You cannot cancel someone else's order.");
     }
