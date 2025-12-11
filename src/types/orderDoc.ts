@@ -7,7 +7,7 @@ export interface OrderDoc extends Document {
   totalPrice: number;
   meetupLocation: string;
   paymentMethod: "GCash" | "Cash on Meetup";
-  status: "pending approval" | "pending" | "completed" | "cancelled";
+  status: "pending" | "completed" | "cancelled";
   sellerConfirmed?: boolean | null;
   buyerConfirmed?: boolean | null;
   cancelReason?: string | null;
