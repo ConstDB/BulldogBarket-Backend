@@ -25,6 +25,11 @@ export const OfferSchema = new Schema(
       type: String,
       required: false,
     },
+    cancelReason: {
+      // reason ng seller bakit nya cinancel
+      type: String,
+      required: false,
+    },
     respondedAt: {
       type: Date,
       required: false,

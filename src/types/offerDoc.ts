@@ -5,5 +5,7 @@ export interface OfferDoc extends Document {
   buyer: Types.ObjectId;
   status: "pending" | "approved" | "rejected" | "cancelled";
   meetupLocation: string;
+  cancelReason?: string | null;
   buyerNote?: string | null;
+  respondedAt?: Date | null;
 }

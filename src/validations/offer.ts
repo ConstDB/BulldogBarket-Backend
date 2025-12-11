@@ -6,4 +6,8 @@ export const createOfferSchema = z.object({
   buyerNote: z.string().min(1),
 });
 
+export const offerIdParamsSchema = z.object({
+  offerId: z.string().min(1, "Offer ID is required."),
+});
+
 export type CreateOffer = z.infer<typeof createOfferSchema>;
