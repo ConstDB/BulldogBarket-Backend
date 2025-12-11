@@ -15,8 +15,8 @@ export const ListingRepository = {
     return listing;
   },
 
-  findById: async (id: string, session?: any) => {
-    return ListingModel.findById(id).session(session);
+  findById: async (id: string, session?: ClientSession): Promise<ListingDoc | null> => {
+    return ListingModel.findById(id).session(session ?? null);
   },
 
   getFeed: async (options: ListingQuery) => {
