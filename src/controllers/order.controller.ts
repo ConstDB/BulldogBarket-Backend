@@ -42,3 +42,11 @@ export const buyerConfirm = asyncHandler(async (req: Request, res: Response) => 
   const order = await OrderService.buyerConfirm(orderId, buyerId);
   res.status(200).json(toOrderResponse(order));
 });
+
+export const sellerConfirm = asyncHandler(async (req: Request, res: Response) => {
+  const { orderId } = req.validatedParams;
+  const sellerId = req.user._id.toString();
+
+  const order = await OrderService.sellerConfirm(orderId, sellerId);
+  res.status(200).json(toOrderResponse(order));
+});

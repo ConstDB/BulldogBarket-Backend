@@ -20,15 +20,19 @@ export const OrderService = {
       if (!listing) {
         throw new NotFoundError("Listing item not found.");
       }
+
       if (listing.type !== "bulk") {
         throw new BadRequestError("This endpoint is only for bulk orders.");
       }
+
       if (listing.seller.toString() === buyerId) {
         throw new ForbiddenError("You cannot buy your own item.");
       }
+
       if (listing.status !== "available") {
         throw new ConflictError("Listing is not available for purchase.");
       }
+
       if (listing.stocks < quantity) {
         throw new ConflictError(`Not enough stocks. Only ${listing.stocks} left.`);
       }
@@ -74,7 +78,7 @@ export const OrderService = {
     }
 
     if (order.status !== "pending") {
-      throw new BadRequestError("Only pending orders can be cancelled.");
+      throw new ConflictError("Only pending orders can be cancelled.");
     }
 
     const listingId = order.listing.toString();
@@ -122,21 +126,67 @@ export const OrderService = {
       }
 
       if (order.buyer.toString() !== buyerId) {
-        throw new ForbiddenError("You are not the buyer of this order.");
+        throw new ForbiddenError("Only the buyer can perform this action.");
       }
 
       if (order.status !== "pending") {
-        throw new BadRequestError("Only pending orders can be marked as completed.");
+        throw new ConflictError("Only pending orders can be marked as completed.");
       }
 
       if (order.buyerConfirmed === true) {
-        throw new BadRequestError("You already marked this order as completed.");
+        throw new ConflictError("You already marked this order as completed.");
       }
 
       await OrderRepository.markBuyerConfirmed(order, session);
 
       if (order.sellerConfirmed && order.buyerConfirmed) {
-        await OrderRepository.settleOrder(order._id.toString(), session);
+        await OrderRepository.settleOrder(orderId, session);
+      }
+
+      await session.commitTransaction();
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+  },
+
+  sellerConfirm: async (orderId: string, sellerId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const order = await OrderRepository.findById(orderId, session);
+
+      if (!order) {
+        throw new NotFoundError("Order not found.");
+      }
+
+      if (order.status !== "pending") {
+        throw new ConflictError("Only pending orders can be marked as completed.");
+      }
+
+      if (order.sellerConfirmed === true) {
+        throw new ConflictError("You already marked this order as completed.");
+      }
+
+      const listingId = order.listing.toString();
+      const listing = await ListingRepository.findById(listingId, session);
+
+      if (!listing) {
+        throw new NotFoundError("Listing not found.");
+      }
+
+      if (listing.seller.toString() !== sellerId) {
+        throw new ForbiddenError("Only the seller can mark this order as completed.");
+      }
+
+      await OrderRepository.markSellerConfirmed(order, session);
+
+      if (order.sellerConfirmed && order.buyerConfirmed) {
+        await OrderRepository.settleOrder(orderId, session);
       }
 
       await session.commitTransaction();

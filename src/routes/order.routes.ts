@@ -4,6 +4,7 @@ import {
   buyerConfirm,
   createOrder,
   sellerCancelOrder,
+  sellerConfirm,
 } from "../controllers/order.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validateParams } from "../middlewares/validateParams";
@@ -33,5 +34,9 @@ router
 router
   .route("/:orderId/complete/buyer")
   .patch(protect, validateParams(orderIdParamsSchema), buyerConfirm);
+
+router
+  .route("/:orderId/complete/seller")
+  .patch(protect, validateParams(orderIdParamsSchema), sellerConfirm);
 
 export default router;

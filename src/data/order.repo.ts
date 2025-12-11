@@ -36,6 +36,12 @@ export const OrderRepository = {
     return order;
   },
 
+  markSellerConfirmed: async (order: OrderDoc, session: ClientSession) => {
+    order.sellerConfirmed = true;
+    await order.save({ session });
+    return order;
+  },
+
   buyerCancelOrder: async (orderId: string, listingId: string, quantity: number) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -144,5 +150,7 @@ export const OrderRepository = {
       },
       { new: true, session }
     );
+
+    return order;
   },
 };
