@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { OfferRepository } from "../data/offer.repo";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
 import { CreateOffer } from "../validations/offer";
+import { OrderService } from "./order.service";
 
 interface CreateOfferInput extends CreateOffer {
   buyerId: string;
@@ -99,5 +101,63 @@ export const OfferService = {
     }
 
     return updatedOffer;
+  },
+
+  approveOffer: async (offerId: string, userId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const offer = await OfferRepository.findById(offerId, session);
+
+      if (!offer) {
+        throw new NotFoundError("Offer not found.");
+      }
+
+      if (offer.status !== "pending") {
+        throw new ConflictError("You can only approve pending orders.");
+      }
+
+      const listingId = offer.listing.toString();
+      const listing = await ListingRepository.findById(listingId, session);
+
+      if (!listing) {
+        throw new NotFoundError("Listing not found.");
+      }
+
+      if (listing.status !== "available") {
+        throw new ConflictError("Listing is not available for purchase.");
+      }
+
+      if (listing.seller.toString() !== userId) {
+        throw new ForbiddenError("Only sellers are allowed to approve offers.");
+      }
+
+      const updatedOffer = await OfferRepository.approveOffer(offerId, session);
+
+      if (!updatedOffer) {
+        throw new NotFoundError("Offer not found during status update.");
+      }
+
+      const order = await OrderService.createOrder({
+        listingId,
+        quantity: 1,
+        meetupLocation: offer.buyerNote,
+        paymentMethod: "Cash on Meetup",
+        buyerId: offer.buyer.toString(),
+      });
+
+      if (!order) {
+        throw new NotFoundError("Order creation failed.");
+      }
+
+      await session.commitTransaction();
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   },
 };

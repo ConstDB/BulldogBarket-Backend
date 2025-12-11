@@ -23,7 +23,7 @@ export const OfferSchema = new Schema(
     },
     buyerNote: {
       type: String,
-      required: false,
+      required: true,
     },
     cancelReason: {
       // reason ng seller bakit nya cinancel

@@ -6,6 +6,6 @@ export interface OfferDoc extends Document {
   status: "pending" | "approved" | "rejected" | "cancelled";
   meetupLocation: string;
   cancelReason?: string | null;
-  buyerNote?: string | null;
+  buyerNote: string;
   respondedAt?: Date | null;
 }

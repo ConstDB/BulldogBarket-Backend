@@ -25,8 +25,16 @@ export const OfferRepository = {
     return OfferModel.create({ ...data, listing: data.listingId });
   },
 
+  approveOffer: async (offerId: string, session: ClientSession) => {
+    return await OfferModel.findByIdAndUpdate(
+      offerId,
+      { status: "approved", respondedAt: new Date() },
+      { new: true, session }
+    );
+  },
+
   cancelOffer: async (offerId: string) => {
-    const offer = await OfferModel.findByIdAndUpdate(
+    return await OfferModel.findByIdAndUpdate(
       offerId,
       {
         status: "cancelled",
@@ -34,17 +42,9 @@ export const OfferRepository = {
       },
       { new: true }
     );
-
-    return offer;
   },
 
   rejectOffer: async (offerId: string) => {
-    const offer = await OfferModel.findByIdAndUpdate(
-      offerId,
-      { status: "rejected" },
-      { new: true }
-    );
-
-    return offer;
+    return await OfferModel.findByIdAndUpdate(offerId, { status: "rejected" }, { new: true });
   },
 };
