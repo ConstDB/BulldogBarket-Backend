@@ -1,0 +1,30 @@
+import { Request, Response } from "express";
+import { CommentService } from "../services/comment.service";
+import { asyncHandler } from "../utils/asyncHandlers";
+
+export const createComment = asyncHandler(async (req: Request, res: Response) => {
+  const { message } = req.body;
+  const { listingId } = req.validatedParams;
+  const comment = await CommentService.createComment(listingId, req.user._id.toString(), message);
+  res.status(201).json(comment);
+});
+
+export const getComments = asyncHandler(async (req: Request, res: Response) => {
+  const { listingId } = req.validatedParams;
+  const comments = await CommentService.getComments(listingId);
+  res.status(200).json(comments);
+});
+
+export const editComment = asyncHandler(async (req: Request, res: Response) => {
+  const { listingId, commentId } = req.validatedParams;
+  const { message } = req.body;
+  const userId = req.user._id.toString();
+  const comment = await CommentService.editComment(listingId, commentId, userId, message);
+  res.status(200).json(comment);
+});
+
+export const deleteComment = asyncHandler(async (req: Request, res: Response) => {
+  const { listingId, commentId } = req.validatedParams;
+  await CommentService.deleteComment(listingId, commentId, req.user._id.toString());
+  res.sendStatus(204);
+});
