@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { OrderModel } from "../models/order.model";
 import { OrderDoc } from "../types/orderDoc";
 import { CreateOrder } from "../validations/order";
 import { ListingModel } from "../models/listing.model";
 import { NotFoundError } from "../utils/appError";
+import { UserModel } from "../models/user.model";
 
 export interface CreateOrderData extends CreateOrder {
   totalPrice: number;
@@ -11,8 +12,8 @@ export interface CreateOrderData extends CreateOrder {
 }
 
 export const OrderRepository = {
-  findById: async (id: string) => {
-    return OrderModel.findById(id);
+  findById: async (id: string, session?: ClientSession): Promise<OrderDoc | null> => {
+    return await OrderModel.findById(id).session(session ?? null);
   },
 
   create: async (data: CreateOrderData, session: mongoose.ClientSession): Promise<OrderDoc> => {
@@ -25,6 +26,12 @@ export const OrderRepository = {
       paymentMethod: data.paymentMethod,
     });
 
+    await order.save({ session });
+    return order;
+  },
+
+  markBuyerConfirmed: async (order: OrderDoc, session: ClientSession) => {
+    order.buyerConfirmed = true;
     await order.save({ session });
     return order;
   },
@@ -105,5 +112,37 @@ export const OrderRepository = {
     } finally {
       session.endSession();
     }
+  },
+
+  settleOrder: async (orderId: string, session: ClientSession) => {
+    const order = await OrderModel.findByIdAndUpdate(
+      orderId,
+      {
+        status: "completed",
+        settledAt: new Date(),
+      },
+      { new: true, session }
+    );
+
+    if (!order) {
+      throw new NotFoundError("Order not found during status update.");
+    }
+
+    const listingId = order.listing;
+    const listing = await ListingModel.findById(listingId).session(session);
+
+    if (!listing) {
+      throw new NotFoundError("Listing not found during finalization of order.");
+    }
+
+    const sellerId = listing.seller;
+
+    await UserModel.findByIdAndUpdate(
+      sellerId,
+      {
+        $inc: { totalEarnings: order.totalPrice },
+      },
+      { new: true, session }
+    );
   },
 };

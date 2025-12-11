@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { buyerCancelOrder, createOrder, sellerCancelOrder } from "../controllers/order.controller";
+import {
+  buyerCancelOrder,
+  buyerConfirm,
+  createOrder,
+  sellerCancelOrder,
+} from "../controllers/order.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validateParams } from "../middlewares/validateParams";
 import { validateResource } from "../middlewares/validateResource";
@@ -12,6 +17,7 @@ import {
 const router = Router();
 
 router.route("/").post(protect, validateResource(createOrderSchema), createOrder);
+
 router
   .route("/:orderId/buyer-cancel")
   .patch(protect, validateParams(orderIdParamsSchema), buyerCancelOrder);
@@ -23,5 +29,9 @@ router
     validateResource(cancelReasonBodySchema),
     sellerCancelOrder
   );
+
+router
+  .route("/:orderId/complete/buyer")
+  .patch(protect, validateParams(orderIdParamsSchema), buyerConfirm);
 
 export default router;

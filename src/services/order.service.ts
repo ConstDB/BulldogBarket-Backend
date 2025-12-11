@@ -109,4 +109,43 @@ export const OrderService = {
 
     return await OrderRepository.sellerCancelOrder(orderId, listingId, quantity, cancelReason);
   },
+
+  buyerConfirm: async (orderId: string, buyerId: string) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const order = await OrderRepository.findById(orderId, session);
+
+      if (!order) {
+        throw new NotFoundError("Order not found.");
+      }
+
+      if (order.buyer.toString() !== buyerId) {
+        throw new ForbiddenError("You are not the buyer of this order.");
+      }
+
+      if (order.status !== "pending") {
+        throw new BadRequestError("Only pending orders can be marked as completed.");
+      }
+
+      if (order.buyerConfirmed === true) {
+        throw new BadRequestError("You already marked this order as completed.");
+      }
+
+      await OrderRepository.markBuyerConfirmed(order, session);
+
+      if (order.sellerConfirmed && order.buyerConfirmed) {
+        await OrderRepository.settleOrder(order._id.toString(), session);
+      }
+
+      await session.commitTransaction();
+      return order;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+  },
 };
