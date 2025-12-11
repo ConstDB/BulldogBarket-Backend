@@ -39,7 +39,7 @@ export const OrderSchema = new Schema(
       type: Boolean,
       required: true,
       default: false,
-    }, 
+    },
     buyerConfirmed: {
       type: Boolean,
       required: true,
@@ -48,8 +48,8 @@ export const OrderSchema = new Schema(
     cancelReason: {
       type: String,
       required: false,
-    }, 
-    settledAt: { 
+    },
+    settledAt: {
       type: Date,
       required: false,
     },

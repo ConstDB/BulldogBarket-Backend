@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { ListingModel, ListingSchema } from "../models/listing.model";
 import { ListingDoc } from "../types/listingDoc";
 import { CreateListing, ListingQuery } from "../validations/listing";
@@ -6,12 +6,17 @@ import { BadRequestError, ConflictError, NotFoundError } from "../utils/appError
 
 export const ListingRepository = {
   create: async (data: CreateListing, sellerId: Types.ObjectId): Promise<ListingDoc> => {
-    const listing = await ListingModel.create({ ...data, seller: sellerId, upvotes: [], comments: [] });
+    const listing = await ListingModel.create({
+      ...data,
+      seller: sellerId,
+      upvotes: [],
+      comments: [],
+    });
     return listing;
   },
 
-  findById: async (id: string, session?: any) => {
-    return ListingModel.findById(id).session(session);
+  findById: async (id: string, session?: ClientSession): Promise<ListingDoc | null> => {
+    return ListingModel.findById(id).session(session ?? null);
   },
 
   getFeed: async (options: ListingQuery) => {
@@ -31,7 +36,11 @@ export const ListingRepository = {
     return listings;
   },
 
-  decrementStock: async (listing: ListingDoc, quantity: number, session?: any): Promise<ListingDoc> => {
+  decrementStock: async (
+    listing: ListingDoc,
+    quantity: number,
+    session?: ClientSession
+  ): Promise<ListingDoc> => {
     if (quantity <= 0) {
       throw new BadRequestError("Quantity must be greater than 0");
     }
@@ -48,7 +57,7 @@ export const ListingRepository = {
           },
         },
       ],
-      { new: true, updatePipeline: true, session }
+      { new: true, updatePipeline: true, session: session ?? null }
     );
 
     if (!updatedListing) {
@@ -67,7 +76,10 @@ export const ListingRepository = {
   },
 
   downvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
-    const downvotes = await ListingModel.updateOne({ _id: new Types.ObjectId(listingId) }, { $pull: { upvotes: userId } });
+    const downvotes = await ListingModel.updateOne(
+      { _id: new Types.ObjectId(listingId) },
+      { $pull: { upvotes: userId } }
+    );
 
     return downvotes;
   },
@@ -108,7 +120,11 @@ export const ListingRepository = {
   },
 
   editComment: async (listingId: string, commentId: string, userId: string, message: string) => {
-    const listing = await ListingModel.findOne({ _id: listingId, "comments._id": commentId, "comments.user": userId }).populate({
+    const listing = await ListingModel.findOne({
+      _id: listingId,
+      "comments._id": commentId,
+      "comments.user": userId,
+    }).populate({
       path: "comments.user",
       select: "name studentNumber course yearLevel campus avatarUrl",
     });

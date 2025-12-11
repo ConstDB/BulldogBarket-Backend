@@ -3,7 +3,7 @@ import { NU_COURSES } from "../constants/courses";
 import { NU_YEAR_LEVELS } from "../constants/yearLevel";
 import { NU_CAMPUSES } from "../constants/campuses";
 
-export interface UserDoc extends Document, SchemaTimestampsConfig{
+export interface UserDoc extends Document, SchemaTimestampsConfig {
   name: string;
   studentNumber: string;
   course: (typeof NU_COURSES)[number];
@@ -15,4 +15,5 @@ export interface UserDoc extends Document, SchemaTimestampsConfig{
     messengerLink: string;
   };
   itemsSold: number;
+  totalEarnings: number;
 }
