@@ -1,5 +1,5 @@
+import { ClientSession } from "mongoose";
 import { OfferModel } from "../models/offer.model";
-import { OfferDoc } from "../types/offerDoc";
 import { CreateOffer } from "../validations/offer";
 
 export interface CreateOfferData extends CreateOffer {
@@ -13,8 +13,8 @@ export interface FindFilter {
 }
 
 export const OfferRepository = {
-  findById: async (id: string) => {
-    return OfferModel.findById(id);
+  findById: async (id: string, session?: ClientSession) => {
+    return OfferModel.findById(id).session(session ?? null);
   },
 
   findOne: async (filter: FindFilter) => {
@@ -32,6 +32,16 @@ export const OfferRepository = {
         status: "cancelled",
         respondedAt: new Date(),
       },
+      { new: true }
+    );
+
+    return offer;
+  },
+
+  rejectOffer: async (offerId: string) => {
+    const offer = await OfferModel.findByIdAndUpdate(
+      offerId,
+      { status: "rejected" },
       { new: true }
     );
 

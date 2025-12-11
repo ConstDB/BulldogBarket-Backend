@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { toOfferResponse } from "../dto/offer.dto";
 import { OfferService } from "../services/offer.service";
 import { asyncHandler } from "../utils/asyncHandlers";
+import { OfferRepository } from "../data/offer.repo";
 
 export const createOffer = asyncHandler(async (req: Request, res: Response) => {
   const buyerId = req.user._id;
@@ -22,5 +23,13 @@ export const buyerCancelOffer = asyncHandler(async (req: Request, res: Response)
   const buyerId = req.user._id.toString();
 
   const offer = await OfferService.buyerCancelOffer(offerId, buyerId);
+  res.status(200).json(toOfferResponse(offer));
+});
+
+export const rejectOffer = asyncHandler(async (req: Request, res: Response) => {
+  const { offerId } = req.validatedParams;
+  const userId = req.user._id.toString();
+
+  const offer = await OfferService.rejectOffer(offerId, userId);
   res.status(200).json(toOfferResponse(offer));
 });

@@ -69,4 +69,35 @@ export const OfferService = {
 
     return updatedOffer;
   },
+
+  rejectOffer: async (offerId: string, userId: string) => {
+    const offer = await OfferRepository.findById(offerId);
+
+    if (!offer) {
+      throw new NotFoundError("Offer not found.");
+    }
+
+    if (offer.status !== "pending") {
+      throw new ConflictError("You can only reject pending orders.");
+    }
+
+    const listingId = offer.listing.toString();
+    const listing = await ListingRepository.findById(listingId);
+
+    if (!listing) {
+      throw new NotFoundError("Listing not found.");
+    }
+
+    if (listing.seller.toString() !== userId) {
+      throw new ForbiddenError("Only sellers are allowed to reject an offer.");
+    }
+
+    const updatedOffer = await OfferRepository.rejectOffer(offerId);
+
+    if (!updatedOffer) {
+      throw new NotFoundError("Offer not found during status update.");
+    }
+
+    return updatedOffer;
+  },
 };
