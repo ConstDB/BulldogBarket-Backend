@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { CreateOrderData, OrderRepository } from "../data/order.repo";
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
@@ -9,9 +9,11 @@ interface CreateOrderInput extends CreateOrder {
 }
 
 export const OrderService = {
-  createOrder: async (data: CreateOrderInput) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+  createOrder: async (data: CreateOrderInput, session?: ClientSession) => {
+    const ownSession = !session;
+    const s = session ?? (await mongoose.startSession());
+
+    if (ownSession) s.startTransaction();
 
     try {
       const { listingId, meetupLocation, paymentMethod, quantity, buyerId } = data;
@@ -19,10 +21,6 @@ export const OrderService = {
 
       if (!listing) {
         throw new NotFoundError("Listing item not found.");
-      }
-
-      if (listing.type !== "bulk") {
-        throw new BadRequestError("This endpoint is only for bulk orders.");
       }
 
       if (listing.seller.toString() === buyerId) {
@@ -47,16 +45,15 @@ export const OrderService = {
         totalPrice,
         buyer: buyerId,
       };
-      const order = await OrderRepository.create(orderData, session);
+      const order = await OrderRepository.create(orderData, s);
 
-      await session.commitTransaction();
-      session.endSession();
-
+      if (ownSession) await s.commitTransaction();
       return order;
     } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
+      if (ownSession) await s.abortTransaction();
       throw error;
+    } finally {
+      if (ownSession) await s.endSession();
     }
   },
 
