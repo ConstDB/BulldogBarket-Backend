@@ -8,15 +8,15 @@ export const toOfferResponse = (offer: OfferDoc | Partial<OfferDoc>) => {
 export const toPendingSellerOffersResponse = (offers: any[]) => {
   return offers.map((offer) => ({
     id: offer._id,
-    listing: {
-      id: offer.listing._id,
-      name: offer.listing.name,
-    },
+    buyerNote: offer.buyerNote,
     buyer: {
       id: offer.buyer._id,
       name: offer.buyer.name,
       avatarUrl: offer.buyer.avatarUrl,
     },
-    buyerNote: offer.buyerNote,
+    listing: {
+      id: offer.listing._id,
+      name: offer.listing.name,
+    },
   }));
 };

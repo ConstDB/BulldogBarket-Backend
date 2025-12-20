@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { OfferRepository } from "../data/offer.repo";
-import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from "../utils/appError";
 import { CreateOffer } from "../validations/offer";
 import { OrderService } from "./order.service";
 
@@ -159,5 +164,14 @@ export const OfferService = {
     } finally {
       await session.endSession();
     }
+  },
+
+  getSellerPendingOffers: async (sellerId: string) => {
+    const listingIds = await ListingRepository.findIdsBySeller(sellerId);
+
+    if (listingIds.length === 0) return [];
+
+    const pendingOffers = await OfferRepository.getSellerOffers(listingIds);
+    return pendingOffers;
   },
 };

@@ -1,11 +1,8 @@
 import { Types } from "mongoose";
-import { UserRepository } from "../data/user.repo";
-import { updateUserProfile } from "../validations/user";
-import { toUserProfileResponse } from "../dto/user.dto";
-import { NotFoundError } from "../utils/appError";
 import { OrderRepository } from "../data/order.repo";
-import { ListingRepository } from "../data/listing.repo";
-import { OfferRepository } from "../data/offer.repo";
+import { UserRepository } from "../data/user.repo";
+import { NotFoundError } from "../utils/appError";
+import { updateUserProfile } from "../validations/user";
 
 export const UserService = {
   getProfile: async (id: Types.ObjectId) => {
@@ -40,14 +37,5 @@ export const UserService = {
       toMeetup: totalPendingOrders,
       rating: seller.rating,
     };
-  },
-
-  getSellerPendingOffers: async (sellerId: string) => {
-    const listingIds = await ListingRepository.findIdsBySeller(sellerId);
-
-    if (listingIds.length === 0) return [];
-
-    const pendingOffers = await OfferRepository.getSellerOffers(listingIds);
-    return pendingOffers;
   },
 };

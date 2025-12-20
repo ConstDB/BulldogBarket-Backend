@@ -12,20 +12,15 @@ export const getUserProfile = asyncHandler(async (req: Request, res: Response) =
 
 export const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
   const user = await UserService.updateProfile(req.user._id, req.body);
-  
+
   res.status(201).json(toUserProfileResponse(user));
 });
 
-export const getSellerDashboardSummary = asyncHandler(async (req: Request, res: Response) => {
-  const sellerId = req.user._id.toString();
-  const sellerDashboardSummary = await UserService.getSellerDashboardSummary(sellerId);
+export const getSellerDashboardSummary = asyncHandler(
+  async (req: Request, res: Response) => {
+    const sellerId = req.user._id.toString();
+    const sellerDashboardSummary = await UserService.getSellerDashboardSummary(sellerId);
 
-  res.status(200).json(sellerDashboardSummary);
-});
-
-export const getSellerPendingOffers = asyncHandler(async (req: Request, res: Response) => {
-  const sellerId = req.user._id.toString();
-  const pendingOffers = await UserService.getSellerPendingOffers(sellerId);
-
-  res.status(200).json(toPendingSellerOffersResponse(pendingOffers));
-});
+    res.status(200).json(sellerDashboardSummary);
+  }
+);
