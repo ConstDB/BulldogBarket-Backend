@@ -1,14 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { listingQuerySchema } from "../validations/listing";
+import { ZodType } from "zod";
 
-export const validateListingQuery = (req: Request, _res: Response, next: NextFunction) => {
-  const parsed = listingQuerySchema.safeParse(req.query);
+export const validateQuery = <T>(schema: ZodType<T>) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    const parsed = schema.safeParse(req.query);
 
-  if (!parsed.success) {
-    next(parsed.error);
-    return;
-  }
+    if (!parsed.success) {
+      next(parsed.error);
+      return;
+    }
 
-  req.validatedQuery = parsed.data;
-  next();
+    req.validatedQuery = parsed.data;
+    next();
+  };
 };

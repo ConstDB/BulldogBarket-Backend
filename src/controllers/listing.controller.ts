@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { toListingFeedResponse, toSellerActiveListings } from "../dto/listing.dto";
 import { ListingService } from "../services/listing.service";
 import { asyncHandler } from "../utils/asyncHandlers";
+import { ListingQuery } from "../validations/listing";
 
 export const createListing = asyncHandler(async (req: Request, res: Response) => {
   const listing = await ListingService.createListing(req.body, req.user._id);
@@ -10,7 +11,7 @@ export const createListing = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getListingFeed = asyncHandler(async (req: Request, res: Response) => {
-  const query = req.validatedQuery;
+  const query = req.validatedQuery as ListingQuery;
 
   const feed = await ListingService.getListingsFeed({
     page: query.page,

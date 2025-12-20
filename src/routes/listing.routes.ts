@@ -15,15 +15,15 @@ import {
 import { protect } from "../middlewares/protect.middleware";
 import { validate } from "../middlewares/validate";
 import { validateParams } from "../middlewares/validateParams";
-import { validateListingQuery } from "../middlewares/validateQuery";
+import { validateQuery } from "../middlewares/validateQuery";
 import { commentIdParamsSchema, listingIdParamsSchema } from "../validations/comment";
-import { createListingSchema } from "../validations/listing";
+import { createListingSchema, listingQuerySchema } from "../validations/listing";
 
 const router = Router();
 
 router
   .route("/")
-  .get(protect, validateListingQuery, getListingFeed)
+  .get(protect, validateQuery(listingQuerySchema), getListingFeed)
   .post(protect, validate(createListingSchema), createListing);
 
 router.route("/seller/active").get(protect, getSellerActiveListings);

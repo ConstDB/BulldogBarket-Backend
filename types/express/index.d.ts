@@ -5,7 +5,7 @@ declare global {
   namespace Express {
     interface Request {
       user: UserDoc;
-      validatedQuery: ListingQuery;
+      validatedQuery: unknown;
       validatedParams: any;
     }
   }
