@@ -19,6 +19,10 @@ export const ListingRepository = {
     return ListingModel.findById(id).session(session ?? null);
   },
 
+  findIdsBySeller: async (sellerId: string) => {
+    return ListingModel.find({ seller: sellerId }).distinct("_id");
+  },
+
   getFeed: async (options: ListingQuery) => {
     const { page, limit, sort } = options;
     const query: any = {};
@@ -36,11 +40,7 @@ export const ListingRepository = {
     return listings;
   },
 
-  decrementStock: async (
-    listing: ListingDoc,
-    quantity: number,
-    session?: ClientSession
-  ): Promise<ListingDoc> => {
+  decrementStock: async (listing: ListingDoc, quantity: number, session?: ClientSession): Promise<ListingDoc> => {
     if (quantity <= 0) {
       throw new BadRequestError("Quantity must be greater than 0");
     }

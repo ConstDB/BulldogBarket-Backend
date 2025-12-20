@@ -1,10 +1,11 @@
 import mongoose, { ClientSession } from "mongoose";
-import { OrderModel, OrderSchema } from "../models/order.model";
-import { OrderDoc } from "../types/orderDoc";
-import { CreateOrder } from "../validations/order";
 import { ListingModel } from "../models/listing.model";
-import { NotFoundError } from "../utils/appError";
+import { OrderModel } from "../models/order.model";
 import { UserModel } from "../models/user.model";
+import { OrderDoc } from "../types/orderDoc";
+import { NotFoundError } from "../utils/appError";
+import { CreateOrder } from "../validations/order";
+import { ListingRepository } from "./listing.repo";
 
 export interface CreateOrderData extends CreateOrder {
   totalPrice: number;
@@ -146,7 +147,10 @@ export const OrderRepository = {
   },
 
   getTotalPendingOrders: async (sellerId: string) => {
-    const listingIds = await ListingModel.find({ seller: sellerId }).distinct("_id");
+    const listingIds = await ListingRepository.findIdsBySeller(sellerId);
+
+    if (listingIds.length === 0) return 0;
+
     const totalPendingOrders = await OrderModel.countDocuments({
       listing: { $in: listingIds },
       status: "pending",
