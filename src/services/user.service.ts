@@ -4,6 +4,8 @@ import { updateUserProfile } from "../validations/user";
 import { toUserProfileResponse } from "../dto/user.dto";
 import { NotFoundError } from "../utils/appError";
 import { OrderRepository } from "../data/order.repo";
+import { ListingRepository } from "../data/listing.repo";
+import { OfferRepository } from "../data/offer.repo";
 
 export const UserService = {
   getProfile: async (id: Types.ObjectId) => {
@@ -11,7 +13,7 @@ export const UserService = {
     if (!user) {
       throw new NotFoundError();
     }
-    return toUserProfileResponse(user);
+    return user;
   },
 
   updateProfile: async (id: Types.ObjectId, data: updateUserProfile) => {
@@ -19,23 +21,33 @@ export const UserService = {
     if (!user) {
       throw new NotFoundError();
     }
-    return toUserProfileResponse(user);
+
+    return user;
   },
 
-  getSellerDashboardSummary: async (userId: string) => {
-    const user = await UserRepository.findById(new Types.ObjectId(userId));
+  getSellerDashboardSummary: async (sellerId: string) => {
+    const seller = await UserRepository.findById(new Types.ObjectId(sellerId));
 
-    if (!user) {
-      throw new NotFoundError("User not Found");
+    if (!seller) {
+      throw new NotFoundError("Seller not found.");
     }
 
-    const totalPendingOrders = await OrderRepository.getTotalPendingOrders(userId);
+    const totalPendingOrders = await OrderRepository.getTotalPendingOrders(sellerId);
 
     return {
-      totalEarnings: user.totalEarnings,
-      itemsSold: user.itemsSold,
+      totalEarnings: seller.totalEarnings,
+      itemsSold: seller.itemsSold,
       toMeetup: totalPendingOrders,
-      rating: user.rating,
+      rating: seller.rating,
     };
+  },
+
+  getSellerPendingOffers: async (sellerId: string) => {
+    const listingIds = await ListingRepository.findIdsBySeller(sellerId);
+
+    if (listingIds.length === 0) return [];
+
+    const pendingOffers = await OfferRepository.getSellerOffers(listingIds);
+    return pendingOffers;
   },
 };

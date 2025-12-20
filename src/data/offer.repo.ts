@@ -1,4 +1,4 @@
-import { ClientSession } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { OfferModel } from "../models/offer.model";
 import { CreateOffer } from "../validations/offer";
 
@@ -46,5 +46,17 @@ export const OfferRepository = {
 
   rejectOffer: async (offerId: string) => {
     return await OfferModel.findByIdAndUpdate(offerId, { status: "rejected" }, { new: true });
+  },
+
+  getSellerOffers: async (listingId: Types.ObjectId[]) => {
+    const pendingOffers = await OfferModel.find({ listing: { $in: listingId }, status: "pending" })
+      .select("listing buyer buyerNote")
+      .populate([
+        { path: "listing", select: "name" },
+        { path: "buyer", select: "name avatarUrl" },
+      ])
+      .lean();
+
+    return pendingOffers;
   },
 };
