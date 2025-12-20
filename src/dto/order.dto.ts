@@ -16,3 +16,21 @@ export const toOrderResponse = (order: OrderDoc | Partial<OrderDoc>) => {
     settledAt: order.settledAt ?? null,
   };
 };
+
+export const toSellerPendingOrdersResponse = (orders: any[]) => {
+  return orders.map((order) => ({
+    id: order._id,
+    quantity: order.quantity,
+    totalPrice: order.totalPrice,
+    paymentMethod: order.paymentMethod,
+    listing: {
+      id: order.listing._id,
+      name: order.listing.name,
+    },
+    buyer: {
+      id: order.buyer._id,
+      name: order.buyer.name,
+      avatarUrl: order.buyer.avatarUrl,
+    },
+  }));
+};

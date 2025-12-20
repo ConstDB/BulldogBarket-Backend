@@ -65,9 +65,7 @@ export const OrderService = {
     }
 
     if (order.sellerConfirmed) {
-      throw new ConflictError(
-        "You cannot cancel the order because the seller already marked it as completed."
-      );
+      throw new ConflictError("You cannot cancel the order because the seller already marked it as completed.");
     }
 
     if (order.buyer.toString() !== buyerId) {
@@ -194,5 +192,11 @@ export const OrderService = {
     } finally {
       await session.endSession();
     }
+  },
+
+  getSellerPendingOrders: async (sellerId: string) => {
+    const pendingOrders = await OrderRepository.getPendingOrders(sellerId);
+
+    return pendingOrders;
   },
 };

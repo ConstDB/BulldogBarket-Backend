@@ -1,4 +1,4 @@
-import mongoose, { ClientSession } from "mongoose";
+import mongoose, { ClientSession, Types } from "mongoose";
 import { ListingModel } from "../models/listing.model";
 import { OrderModel } from "../models/order.model";
 import { UserModel } from "../models/user.model";
@@ -17,7 +17,10 @@ export const OrderRepository = {
     return await OrderModel.findById(id).session(session ?? null);
   },
 
-  create: async (data: CreateOrderData, session: mongoose.ClientSession): Promise<OrderDoc> => {
+  create: async (
+    data: CreateOrderData,
+    session: mongoose.ClientSession
+  ): Promise<OrderDoc> => {
     const order = new OrderModel({
       listing: data.listingId,
       buyer: data.buyer,
@@ -48,7 +51,11 @@ export const OrderRepository = {
     session.startTransaction();
 
     try {
-      const order = await OrderModel.findByIdAndUpdate(orderId, { status: "cancelled" }, { new: true, session });
+      const order = await OrderModel.findByIdAndUpdate(
+        orderId,
+        { status: "cancelled" },
+        { new: true, session }
+      );
 
       if (!order) {
         throw new NotFoundError("Order not found during cancellation.");
@@ -56,7 +63,10 @@ export const OrderRepository = {
 
       const listing = await ListingModel.findByIdAndUpdate(
         listingId,
-        { $inc: { stocks: quantity }, ...(quantity > 0 && { status: "available" }) },
+        {
+          $inc: { stocks: quantity },
+          ...(quantity > 0 && { status: "available" }),
+        },
         { new: true, session }
       );
 
@@ -74,7 +84,12 @@ export const OrderRepository = {
     }
   },
 
-  sellerCancelOrder: async (orderId: string, listingId: string, quantity: number, cancelReason: string) => {
+  sellerCancelOrder: async (
+    orderId: string,
+    listingId: string,
+    quantity: number,
+    cancelReason: string
+  ) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -157,5 +172,25 @@ export const OrderRepository = {
     });
 
     return totalPendingOrders;
+  },
+
+  getPendingOrders: async (sellerId: string) => {
+    const listingIds = await ListingRepository.findIdsBySeller(sellerId);
+
+    if (listingIds.length === 0) return [];
+
+    const pendingOrders = await OrderModel.find({
+      listing: { $in: listingIds },
+      status: "pending",
+    })
+      .select("_id listing quantity totalPrice paymentMethod")
+      .populate([
+        { path: "listing", select: "name" },
+        { path: "buyer", select: "name avatarUrl" },
+      ])
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return pendingOrders;
   },
 };

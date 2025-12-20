@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { toOrderResponse } from "../dto/order.dto";
+import { toOrderResponse, toSellerPendingOrdersResponse } from "../dto/order.dto";
 import { OrderService } from "../services/order.service";
 import { asyncHandler } from "../utils/asyncHandlers";
 
@@ -49,4 +49,11 @@ export const sellerConfirm = asyncHandler(async (req: Request, res: Response) =>
 
   const order = await OrderService.sellerConfirm(orderId, sellerId);
   res.status(200).json(toOrderResponse(order));
+});
+
+export const getSellerPendingOrders = asyncHandler(async (req: Request, res: Response) => {
+  const sellerId = req.user._id.toString();
+  const pendingOrders = await OrderService.getSellerPendingOrders(sellerId);
+
+  res.status(200).json(toSellerPendingOrdersResponse(pendingOrders));
 });
