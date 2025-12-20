@@ -16,4 +16,5 @@ export interface UserDoc extends Document, SchemaTimestampsConfig {
   };
   itemsSold: number;
   totalEarnings: number;
+  rating: number;
 }

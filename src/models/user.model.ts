@@ -55,6 +55,10 @@ const userSchema = new Schema<UserDoc>(
       type: Number,
       default: 0,
     },
+    rating: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

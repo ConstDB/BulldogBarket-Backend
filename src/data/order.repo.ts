@@ -1,5 +1,5 @@
 import mongoose, { ClientSession } from "mongoose";
-import { OrderModel } from "../models/order.model";
+import { OrderModel, OrderSchema } from "../models/order.model";
 import { OrderDoc } from "../types/orderDoc";
 import { CreateOrder } from "../validations/order";
 import { ListingModel } from "../models/listing.model";
@@ -47,11 +47,7 @@ export const OrderRepository = {
     session.startTransaction();
 
     try {
-      const order = await OrderModel.findByIdAndUpdate(
-        orderId,
-        { status: "cancelled" },
-        { new: true, session }
-      );
+      const order = await OrderModel.findByIdAndUpdate(orderId, { status: "cancelled" }, { new: true, session });
 
       if (!order) {
         throw new NotFoundError("Order not found during cancellation.");
@@ -77,12 +73,7 @@ export const OrderRepository = {
     }
   },
 
-  sellerCancelOrder: async (
-    orderId: string,
-    listingId: string,
-    quantity: number,
-    cancelReason: string
-  ) => {
+  sellerCancelOrder: async (orderId: string, listingId: string, quantity: number, cancelReason: string) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -152,5 +143,15 @@ export const OrderRepository = {
     );
 
     return order;
+  },
+
+  getTotalPendingOrders: async (sellerId: string) => {
+    const listingIds = await ListingModel.find({ seller: sellerId }).distinct("_id");
+    const totalPendingOrders = await OrderModel.countDocuments({
+      listing: { $in: listingIds },
+      status: "pending",
+    });
+
+    return totalPendingOrders;
   },
 };
