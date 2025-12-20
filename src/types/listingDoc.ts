@@ -18,4 +18,5 @@ export interface ListingDoc extends Document {
     message: string;
     createdAt: Date;
   }[];
+  createdAt: Date;
 }

@@ -1,6 +1,17 @@
 import { Router } from "express";
-import { createComment, deleteComment, editComment, getComments } from "../controllers/comment.controller";
-import { createListing, downvotes, getListingFeed, upvotes } from "../controllers/listing.controller";
+import {
+  createComment,
+  deleteComment,
+  editComment,
+  getComments,
+} from "../controllers/comment.controller";
+import {
+  createListing,
+  downvotes,
+  getListingFeed,
+  getSellerActiveListings,
+  upvotes,
+} from "../controllers/listing.controller";
 import { protect } from "../middlewares/protect.middleware";
 import { validate } from "../middlewares/validate";
 import { validateParams } from "../middlewares/validateParams";
@@ -10,7 +21,12 @@ import { createListingSchema } from "../validations/listing";
 
 const router = Router();
 
-router.route("/").get(protect, validateListingQuery, getListingFeed).post(protect, validate(createListingSchema), createListing);
+router
+  .route("/")
+  .get(protect, validateListingQuery, getListingFeed)
+  .post(protect, validate(createListingSchema), createListing);
+
+router.route("/seller/active").get(protect, getSellerActiveListings);
 
 router.route("/:id/upvotes").patch(protect, upvotes).delete(protect, downvotes);
 

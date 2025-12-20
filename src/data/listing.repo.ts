@@ -1,8 +1,8 @@
 import { ClientSession, Types } from "mongoose";
-import { ListingModel, ListingSchema } from "../models/listing.model";
+import { ListingModel } from "../models/listing.model";
 import { ListingDoc } from "../types/listingDoc";
-import { CreateListing, ListingQuery } from "../validations/listing";
 import { BadRequestError, ConflictError, NotFoundError } from "../utils/appError";
+import { CreateListing, ListingQuery } from "../validations/listing";
 
 export const ListingRepository = {
   create: async (data: CreateListing, sellerId: Types.ObjectId): Promise<ListingDoc> => {
@@ -23,6 +23,18 @@ export const ListingRepository = {
     return ListingModel.find({ seller: sellerId }).distinct("_id");
   },
 
+  getActiveListings: async (sellerId: string, activeStatuses: string[]) => {
+    const activeListings = await ListingModel.find({
+      seller: sellerId,
+      status: { $in: activeStatuses },
+    })
+      .select("_id images name status stocks")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return activeListings;
+  },
+
   getFeed: async (options: ListingQuery) => {
     const { page, limit, sort } = options;
     const query: any = {};
@@ -40,7 +52,11 @@ export const ListingRepository = {
     return listings;
   },
 
-  decrementStock: async (listing: ListingDoc, quantity: number, session?: ClientSession): Promise<ListingDoc> => {
+  decrementStock: async (
+    listing: ListingDoc,
+    quantity: number,
+    session?: ClientSession
+  ): Promise<ListingDoc> => {
     if (quantity <= 0) {
       throw new BadRequestError("Quantity must be greater than 0");
     }
@@ -52,7 +68,11 @@ export const ListingRepository = {
           $set: {
             stocks: { $subtract: ["$stocks", quantity] },
             status: {
-              $cond: [{ $eq: [{ $subtract: ["$stocks", quantity] }, 0] }, "sold", "$status"],
+              $cond: [
+                { $eq: [{ $subtract: ["$stocks", quantity] }, 0] },
+                "sold",
+                "$status",
+              ],
             },
           },
         },
@@ -119,7 +139,12 @@ export const ListingRepository = {
     return listing?.comments;
   },
 
-  editComment: async (listingId: string, commentId: string, userId: string, message: string) => {
+  editComment: async (
+    listingId: string,
+    commentId: string,
+    userId: string,
+    message: string
+  ) => {
     const listing = await ListingModel.findOne({
       _id: listingId,
       "comments._id": commentId,
@@ -130,7 +155,9 @@ export const ListingRepository = {
     });
 
     if (!listing) {
-      throw new NotFoundError("Listing not found or you are not authorized to edit the comment.");
+      throw new NotFoundError(
+        "Listing not found or you are not authorized to edit the comment."
+      );
     }
 
     const comment = listing.comments.id(commentId);
@@ -154,7 +181,9 @@ export const ListingRepository = {
     );
 
     if (!updatedListing) {
-      throw new NotFoundError("Comment not found or you are not authorized to delete it.");
+      throw new NotFoundError(
+        "Comment not found or you are not authorized to delete it."
+      );
     }
   },
 };

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { toListingFeedResponse } from "../dto/listing.dto";
+import { Types } from "mongoose";
+import { toListingFeedResponse, toSellerActiveListings } from "../dto/listing.dto";
 import { ListingService } from "../services/listing.service";
 import { asyncHandler } from "../utils/asyncHandlers";
-import { Types } from "mongoose";
 
 export const createListing = asyncHandler(async (req: Request, res: Response) => {
   const listing = await ListingService.createListing(req.body, req.user._id);
@@ -43,3 +43,11 @@ export const downvotes = asyncHandler(async (req: Request, res: Response) => {
   return res.sendStatus(204);
 });
 
+export const getSellerActiveListings = asyncHandler(
+  async (req: Request, res: Response) => {
+    const sellerId = req.user._id.toString();
+    const activeListings = await ListingService.getActiveListings(sellerId);
+
+    res.status(200).json(toSellerActiveListings(activeListings));
+  }
+);
