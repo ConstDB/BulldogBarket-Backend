@@ -18,4 +18,9 @@ export const cancelReasonBodySchema = z.object({
     .max(100, "Cancel reason cannot exceed 100 characters."),
 });
 
+export const buyerOrdersQuerySchema = z.object({
+  status: z.enum(["pending", "completed", "cancelled"]),
+});
+
+export type BuyerOrdersQuery = z.infer<typeof buyerOrdersQuerySchema>;
 export type CreateOrder = z.infer<typeof createOrderSchema>;

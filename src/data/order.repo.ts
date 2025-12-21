@@ -193,4 +193,25 @@ export const OrderRepository = {
 
     return pendingOrders;
   },
+
+  getBuyersOrder: async (buyerId: string, status: string) => {
+    const query: any = { buyer: buyerId, status };
+
+    const orders = await OrderModel.find(query)
+      .select("_id listing quantity totalPrice paymentMethod status cancelReason")
+      .populate([
+        {
+          path: "listing",
+          select: "name images type seller",
+          populate: {
+            path: "seller",
+            select: "name socials.messengerLink",
+          },
+        },
+      ])
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return orders;
+  },
 };

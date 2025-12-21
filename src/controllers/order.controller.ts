@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
-import { toOrderResponse, toSellerPendingOrdersResponse } from "../dto/order.dto";
+import {
+  toBuyerOrdersResponse,
+  toOrderResponse,
+  toSellerPendingOrdersResponse,
+} from "../dto/order.dto";
 import { OrderService } from "../services/order.service";
 import { asyncHandler } from "../utils/asyncHandlers";
+import { BuyerOrdersQuery } from "../validations/order";
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   const buyerId = req.user._id;
@@ -51,9 +56,19 @@ export const sellerConfirm = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json(toOrderResponse(order));
 });
 
-export const getSellerPendingOrders = asyncHandler(async (req: Request, res: Response) => {
-  const sellerId = req.user._id.toString();
-  const pendingOrders = await OrderService.getSellerPendingOrders(sellerId);
+export const getSellerPendingOrders = asyncHandler(
+  async (req: Request, res: Response) => {
+    const sellerId = req.user._id.toString();
+    const pendingOrders = await OrderService.getSellerPendingOrders(sellerId);
 
-  res.status(200).json(toSellerPendingOrdersResponse(pendingOrders));
+    res.status(200).json(toSellerPendingOrdersResponse(pendingOrders));
+  }
+);
+
+export const getBuyerOrders = asyncHandler(async (req: Request, res: Response) => {
+  const buyerId = req.user._id.toString();
+  const { status } = req.validatedQuery as BuyerOrdersQuery;
+
+  const orders = await OrderService.getBuyerOrders(buyerId, status);
+  res.status(200).json(toBuyerOrdersResponse(orders));
 });

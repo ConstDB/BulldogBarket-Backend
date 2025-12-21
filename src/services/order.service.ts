@@ -1,8 +1,13 @@
 import mongoose, { ClientSession } from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { CreateOrderData, OrderRepository } from "../data/order.repo";
-import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
-import { CreateOrder } from "../validations/order";
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from "../utils/appError";
+import { BuyerOrdersQuery, CreateOrder } from "../validations/order";
 
 interface CreateOrderInput extends CreateOrder {
   buyerId: string;
@@ -35,7 +40,11 @@ export const OrderService = {
         throw new ConflictError(`Not enough stocks. Only ${listing.stocks} left.`);
       }
 
-      const updatedListing = await ListingRepository.decrementStock(listing, quantity, session);
+      const updatedListing = await ListingRepository.decrementStock(
+        listing,
+        quantity,
+        session
+      );
       const totalPrice = updatedListing.price * quantity;
       const orderData: CreateOrderData = {
         listingId,
@@ -65,7 +74,9 @@ export const OrderService = {
     }
 
     if (order.sellerConfirmed) {
-      throw new ConflictError("You cannot cancel the order because the seller already marked it as completed.");
+      throw new ConflictError(
+        "You cannot cancel the order because the seller already marked it as completed."
+      );
     }
 
     if (order.buyer.toString() !== buyerId) {
@@ -106,7 +117,12 @@ export const OrderService = {
     const listingId = order.listing.toString();
     const quantity = order.quantity;
 
-    return await OrderRepository.sellerCancelOrder(orderId, listingId, quantity, cancelReason);
+    return await OrderRepository.sellerCancelOrder(
+      orderId,
+      listingId,
+      quantity,
+      cancelReason
+    );
   },
 
   buyerConfirm: async (orderId: string, buyerId: string) => {
@@ -198,5 +214,19 @@ export const OrderService = {
     const pendingOrders = await OrderRepository.getPendingOrders(sellerId);
 
     return pendingOrders;
+  },
+
+  getBuyerOrders: async (buyerId: string, status: string) => {
+    const validOrderStatuses = ["pending", "cancelled", "completed"];
+
+    if (!status) {
+      throw new BadRequestError("Missing order status.");
+    }
+
+    if (!validOrderStatuses.includes(status)) {
+      throw new BadRequestError("Invalid order status.");
+    }
+
+    return await OrderRepository.getBuyersOrder(buyerId, status);
   },
 };

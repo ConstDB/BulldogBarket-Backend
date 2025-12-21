@@ -34,3 +34,22 @@ export const toSellerPendingOrdersResponse = (orders: any[]) => {
     },
   }));
 };
+
+export const toBuyerOrdersResponse = (orders: any[]) => {
+  return orders.map((order) => ({
+    id: order._id,
+    quantity: order.quantity,
+    totalPrice: order.totalPrice,
+    paymentMethod: order.paymentMethod,
+    status: order.status,
+    ...(order.listing.type === "single" && { condition: order.condition }),
+    listing: {
+      id: order.listing._id,
+      type: order.listing.type,
+      name: order.listing.name,
+      sellerName: order.listing.seller.name,
+      sellerMessengerLink: order.listing.seller.socials.messengerLink,
+      images: order.listing.images,
+    },
+  }));
+};
