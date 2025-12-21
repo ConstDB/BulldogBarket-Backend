@@ -37,26 +37,66 @@ export const ListingRepository = {
 
   getFeed: async (options: ListingQuery) => {
     const { page, limit, sort } = options;
-    const query: any = {};
+    const skip = (page - 1) * limit;
+    const pipeline: any[] = [];
 
-    let sortOptions: any = { createdAt: -1 };
+    pipeline.push({
+      $addFields: {
+        upvotesCount: { $size: { $ifNull: ["$upvotes", []] } },
+        commentsCount: { $size: { $ifNull: ["$comments", []] } },
+      },
+    });
 
-    if (sort === "popular") sortOptions = { upvotes: -1, createdAt: -1 };
+    if (sort === "popular") {
+      pipeline.push({ $sort: { upvotesCount: -1, createdAt: -1 } });
+    } else {
+      pipeline.push({ $sort: { createdAt: -1 } });
+    }
 
-    const listings = await ListingModel.find(query)
-      .sort(sortOptions)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate("seller", "name avatarUrl yearLevel course campus socials.messengerLink");
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+    pipeline.push(
+      {
+        $lookup: {
+          from: "users",
+          localField: "seller",
+          foreignField: "_id",
+          as: "seller",
+        },
+      },
+      { $unwind: "$seller" }
+    );
+    pipeline.push({
+      $project: {
+        _id: 1,
+        type: 1,
+        name: 1,
+        images: 1,
+        price: 1,
+        category: 1,
+        description: 1,
+        stocks: 1,
+        condition: 1,
+        createdAt: 1,
+        upvotesCount: 1,
+        commentsCount: 1,
+        seller: {
+          id: "$seller._id",
+          name: "$seller.name",
+          avatarUrl: "$seller.avatarUrl",
+          yearLevel: "$seller.yearLevel",
+          course: "$seller.course",
+          campus: "$seller.campus",
+          messengerLink: "$seller.socials.messengerLink",
+        },
+      },
+    });
 
+    const listings = await ListingModel.aggregate(pipeline);
     return listings;
   },
 
-  decrementStock: async (
-    listing: ListingDoc,
-    quantity: number,
-    session?: ClientSession
-  ): Promise<ListingDoc> => {
+  decrementStock: async (listing: ListingDoc, quantity: number, session?: ClientSession): Promise<ListingDoc> => {
     if (quantity <= 0) {
       throw new BadRequestError("Quantity must be greater than 0");
     }
@@ -68,11 +108,7 @@ export const ListingRepository = {
           $set: {
             stocks: { $subtract: ["$stocks", quantity] },
             status: {
-              $cond: [
-                { $eq: [{ $subtract: ["$stocks", quantity] }, 0] },
-                "sold",
-                "$status",
-              ],
+              $cond: [{ $eq: [{ $subtract: ["$stocks", quantity] }, 0] }, "sold", "$status"],
             },
           },
         },
@@ -139,12 +175,7 @@ export const ListingRepository = {
     return listing?.comments;
   },
 
-  editComment: async (
-    listingId: string,
-    commentId: string,
-    userId: string,
-    message: string
-  ) => {
+  editComment: async (listingId: string, commentId: string, userId: string, message: string) => {
     const listing = await ListingModel.findOne({
       _id: listingId,
       "comments._id": commentId,
@@ -155,9 +186,7 @@ export const ListingRepository = {
     });
 
     if (!listing) {
-      throw new NotFoundError(
-        "Listing not found or you are not authorized to edit the comment."
-      );
+      throw new NotFoundError("Listing not found or you are not authorized to edit the comment.");
     }
 
     const comment = listing.comments.id(commentId);
@@ -181,9 +210,7 @@ export const ListingRepository = {
     );
 
     if (!updatedListing) {
-      throw new NotFoundError(
-        "Comment not found or you are not authorized to delete it."
-      );
+      throw new NotFoundError("Comment not found or you are not authorized to delete it.");
     }
   },
 };

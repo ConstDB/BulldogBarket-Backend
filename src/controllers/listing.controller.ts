@@ -19,7 +19,7 @@ export const getListingFeed = asyncHandler(async (req: Request, res: Response) =
     sort: query.sort,
   });
 
-  res.status(200).json(toListingFeedResponse(feed));
+  res.status(200).json(feed);
 });
 
 export const upvotes = asyncHandler(async (req: Request, res: Response) => {
@@ -44,11 +44,9 @@ export const downvotes = asyncHandler(async (req: Request, res: Response) => {
   return res.sendStatus(204);
 });
 
-export const getSellerActiveListings = asyncHandler(
-  async (req: Request, res: Response) => {
-    const sellerId = req.user._id.toString();
-    const activeListings = await ListingService.getActiveListings(sellerId);
+export const getSellerActiveListings = asyncHandler(async (req: Request, res: Response) => {
+  const sellerId = req.user._id.toString();
+  const activeListings = await ListingService.getActiveListings(sellerId);
 
-    res.status(200).json(toSellerActiveListings(activeListings));
-  }
-);
+  res.status(200).json(toSellerActiveListings(activeListings));
+});
