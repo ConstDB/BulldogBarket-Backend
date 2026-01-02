@@ -42,7 +42,7 @@ export const toBuyerOrdersResponse = (orders: any[]) => {
     totalPrice: order.totalPrice,
     paymentMethod: order.paymentMethod,
     status: order.status,
-    ...(order.listing.type === "single" && { condition: order.condition }),
+    // ...(order.listing.type === "single" && { condition: order.condition }),
     listing: {
       id: order.listing._id,
       type: order.listing.type,

@@ -17,10 +17,7 @@ export const OrderRepository = {
     return await OrderModel.findById(id).session(session ?? null);
   },
 
-  create: async (
-    data: CreateOrderData,
-    session: mongoose.ClientSession
-  ): Promise<OrderDoc> => {
+  create: async (data: CreateOrderData, session: mongoose.ClientSession): Promise<OrderDoc> => {
     const order = new OrderModel({
       listing: data.listingId,
       buyer: data.buyer,
@@ -197,8 +194,11 @@ export const OrderRepository = {
   getBuyersOrder: async (buyerId: string, status: string) => {
     const query: any = { buyer: buyerId, status };
 
+    console.log("BUYER ID: ", buyerId);
+    console.log("STATUS: ", status);
+
     const orders = await OrderModel.find(query)
-      .select("_id listing quantity totalPrice paymentMethod status cancelReason")
+      .select("_id quantity totalPrice paymentMethod status cancelReason")
       .populate([
         {
           path: "listing",
@@ -211,6 +211,8 @@ export const OrderRepository = {
       ])
       .sort({ createdAt: -1 })
       .lean();
+
+    console.log(orders);
 
     return orders;
   },

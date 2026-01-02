@@ -56,14 +56,12 @@ export const sellerConfirm = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json(toOrderResponse(order));
 });
 
-export const getSellerPendingOrders = asyncHandler(
-  async (req: Request, res: Response) => {
-    const sellerId = req.user._id.toString();
-    const pendingOrders = await OrderService.getSellerPendingOrders(sellerId);
+export const getSellerPendingOrders = asyncHandler(async (req: Request, res: Response) => {
+  const sellerId = req.user._id.toString();
+  const pendingOrders = await OrderService.getSellerPendingOrders(sellerId);
 
-    res.status(200).json(toSellerPendingOrdersResponse(pendingOrders));
-  }
-);
+  res.status(200).json(toSellerPendingOrdersResponse(pendingOrders));
+});
 
 export const getBuyerOrders = asyncHandler(async (req: Request, res: Response) => {
   const buyerId = req.user._id.toString();

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import { toListingFeedResponse, toSellerActiveListings } from "../dto/listing.dto";
+import { toSellerActiveListings } from "../dto/listing.dto";
 import { ListingService } from "../services/listing.service";
 import { asyncHandler } from "../utils/asyncHandlers";
 import { ListingQuery } from "../validations/listing";
