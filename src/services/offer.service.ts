@@ -1,14 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { OfferRepository } from "../data/offer.repo";
-import {
-  BadRequestError,
-  ConflictError,
-  ForbiddenError,
-  NotFoundError,
-} from "../utils/appError";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
 import { CreateOffer } from "../validations/offer";
 import { OrderService } from "./order.service";
+import { getBuyerPendingOffers } from "../controllers/offer.controller";
 
 interface CreateOfferInput extends CreateOffer {
   buyerId: string;
@@ -172,6 +168,15 @@ export const OfferService = {
     if (listingIds.length === 0) return [];
 
     const pendingOffers = await OfferRepository.getSellerOffers(listingIds);
+    return pendingOffers;
+  },
+
+  getBuyerPendingOffers: async (buyerId: Types.ObjectId) => {
+    if (!Types.ObjectId.isValid(buyerId)) {
+      throw new BadRequestError("Invalid buyer ID.");
+    }
+
+    const pendingOffers = await OfferRepository.getBuyerOffers(buyerId);
     return pendingOffers;
   },
 };

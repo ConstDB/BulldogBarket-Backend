@@ -3,6 +3,7 @@ import {
   approveOffer,
   buyerCancelOffer,
   createOffer,
+  getBuyerPendingOffers,
   getSellerPendingOffers,
   rejectOffer,
 } from "../controllers/offer.controller";
@@ -18,11 +19,8 @@ router.route("/seller/pending").get(protect, getSellerPendingOffers);
 router
   .route("/:offerId/cancel")
   .patch(protect, validateParams(offerIdParamsSchema), buyerCancelOffer);
-router
-  .route("/:offerId/reject")
-  .patch(protect, validateParams(offerIdParamsSchema), rejectOffer);
-router
-  .route("/:offerId/approve")
-  .patch(protect, validateParams(offerIdParamsSchema), approveOffer);
+router.route("/:offerId/reject").patch(protect, validateParams(offerIdParamsSchema), rejectOffer);
+router.route("/:offerId/approve").patch(protect, validateParams(offerIdParamsSchema), approveOffer);
+router.route("/buyer/pending").get(protect, getBuyerPendingOffers);
 
 export default router;

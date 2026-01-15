@@ -35,17 +35,10 @@ export const ListingRepository = {
     return activeListings;
   },
 
-  getFeed: async (options: ListingQuery) => {
+  getFeed: async (options: ListingQuery, userId: Types.ObjectId) => {
     const { page, limit, sort } = options;
     const skip = (page - 1) * limit;
     const pipeline: any[] = [];
-
-    pipeline.push({
-      $addFields: {
-        upvotesCount: { $size: { $ifNull: ["$upvotes", []] } },
-        commentsCount: { $size: { $ifNull: ["$comments", []] } },
-      },
-    });
 
     if (sort === "popular") {
       pipeline.push({ $sort: { upvotesCount: -1, createdAt: -1 } });
@@ -66,6 +59,64 @@ export const ListingRepository = {
       },
       { $unwind: "$seller" }
     );
+
+    pipeline.push({
+      $lookup: {
+        from: "offers",
+        let: { listingId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$listing", "$$listingId"] }, { $eq: ["$buyer", userId] }],
+              },
+            },
+          },
+          { $limit: 1 },
+        ],
+        as: "userOffer",
+      },
+    });
+
+    pipeline.push({
+      $lookup: {
+        from: "orders",
+        let: { listingId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [{ $eq: ["$listing", "$$listingId"] }, { $eq: ["$buyer", userId] }],
+              },
+            },
+          },
+          { $limit: 1 },
+        ],
+        as: "userOrder",
+      },
+    });
+
+    pipeline.push({
+      $addFields: {
+        upvotesCount: { $size: { $ifNull: ["$upvotes", []] } },
+        commentsCount: { $size: { $ifNull: ["$comments", []] } },
+        userHasInteracted: {
+          $cond: {
+            if: { $eq: ["$type", "single"] },
+            then: { $gt: [{ $size: "$userOffer" }, 0] },
+            else: { $gt: [{ $size: "$userOrder" }, 0] },
+          },
+        },
+      },
+    });
+
+    pipeline.push({
+      $project: {
+        userOffer: 0,
+        userOrder: 0,
+      },
+    });
+
     pipeline.push({
       $project: {
         _id: 1,
@@ -80,6 +131,7 @@ export const ListingRepository = {
         createdAt: 1,
         upvotesCount: 1,
         commentsCount: 1,
+        userHasInteracted: 1,
         seller: {
           id: "$seller._id",
           name: "$seller.name",
@@ -96,7 +148,11 @@ export const ListingRepository = {
     return listings;
   },
 
-  decrementStock: async (listing: ListingDoc, quantity: number, session?: ClientSession): Promise<ListingDoc> => {
+  decrementStock: async (
+    listing: ListingDoc,
+    quantity: number,
+    session?: ClientSession
+  ): Promise<ListingDoc> => {
     if (quantity <= 0) {
       throw new BadRequestError("Quantity must be greater than 0");
     }
@@ -134,7 +190,7 @@ export const ListingRepository = {
   downvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
     const downvotes = await ListingModel.updateOne(
       { _id: new Types.ObjectId(listingId) },
-      { $pull: { upvotes: userId } }
+      { $pull: { upvotes: userId }, $push: { downvotes: userId } }
     );
 
     return downvotes;

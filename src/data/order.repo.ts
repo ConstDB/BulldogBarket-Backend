@@ -194,11 +194,10 @@ export const OrderRepository = {
   getBuyersOrder: async (buyerId: string, status: string) => {
     const query: any = { buyer: buyerId, status };
 
-    console.log("BUYER ID: ", buyerId);
-    console.log("STATUS: ", status);
-
     const orders = await OrderModel.find(query)
-      .select("_id quantity totalPrice paymentMethod status cancelReason")
+      .select(
+        "_id quantity totalPrice paymentMethod status cancelReason sellerConfirmed buyerConfirmed createdAt"
+      )
       .populate([
         {
           path: "listing",

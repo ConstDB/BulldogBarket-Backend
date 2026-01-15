@@ -11,8 +11,8 @@ export const ListingService = {
     return toListingRepsonse(listing);
   },
 
-  getListingsFeed: async (data: ListingQuery) => {
-    return ListingRepository.getFeed(data);
+  getListingsFeed: async (data: ListingQuery, userId: Types.ObjectId) => {
+    return ListingRepository.getFeed(data, userId);
   },
 
   upvote: async (userId: Types.ObjectId, listingId: Types.ObjectId) => {
@@ -32,10 +32,7 @@ export const ListingService = {
       throw new BadRequestError("Missing seller ID");
     }
 
-    const activeListings = await ListingRepository.getActiveListings(
-      sellerId,
-      ACTIVE_STATUSES
-    );
+    const activeListings = await ListingRepository.getActiveListings(sellerId, ACTIVE_STATUSES);
     return activeListings;
   },
 };
