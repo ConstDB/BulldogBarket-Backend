@@ -1,13 +1,8 @@
 import mongoose, { ClientSession } from "mongoose";
 import { ListingRepository } from "../data/listing.repo";
 import { CreateOrderData, OrderRepository } from "../data/order.repo";
-import {
-  BadRequestError,
-  ConflictError,
-  ForbiddenError,
-  NotFoundError,
-} from "../utils/appError";
-import { BuyerOrdersQuery, CreateOrder } from "../validations/order";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from "../utils/appError";
+import { CreateOrder } from "../validations/order";
 
 interface CreateOrderInput extends CreateOrder {
   buyerId: string;
@@ -40,11 +35,7 @@ export const OrderService = {
         throw new ConflictError(`Not enough stocks. Only ${listing.stocks} left.`);
       }
 
-      const updatedListing = await ListingRepository.decrementStock(
-        listing,
-        quantity,
-        session
-      );
+      const updatedListing = await ListingRepository.decrementStock(listing, quantity, session);
       const totalPrice = updatedListing.price * quantity;
       const orderData: CreateOrderData = {
         listingId,
@@ -117,12 +108,7 @@ export const OrderService = {
     const listingId = order.listing.toString();
     const quantity = order.quantity;
 
-    return await OrderRepository.sellerCancelOrder(
-      orderId,
-      listingId,
-      quantity,
-      cancelReason
-    );
+    return await OrderRepository.sellerCancelOrder(orderId, listingId, quantity, cancelReason);
   },
 
   buyerConfirm: async (orderId: string, buyerId: string) => {

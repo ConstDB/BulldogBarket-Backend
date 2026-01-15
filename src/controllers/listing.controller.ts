@@ -11,13 +11,9 @@ export const createListing = asyncHandler(async (req: Request, res: Response) =>
 });
 
 export const getListingFeed = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user._id;
   const query = req.validatedQuery as ListingQuery;
-
-  const feed = await ListingService.getListingsFeed({
-    page: query.page,
-    limit: query.limit,
-    sort: query.sort,
-  });
+  const feed = await ListingService.getListingsFeed(query, userId);
 
   res.status(200).json(feed);
 });

@@ -59,6 +59,12 @@ export const ListingSchema = new Schema(
         ref: "User",
       },
     ],
+    downvotes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     comments: [CommentSchema],
   },
   { timestamps: true }
