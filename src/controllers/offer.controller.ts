@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { toOfferResponse, toPendingSellerOffersResponse } from "../dto/offer.dto";
+import {
+  toOfferResponse,
+  toPendingBuyerOffersResponse,
+  toPendingSellerOffersResponse,
+} from "../dto/offer.dto";
 import { toOrderResponse } from "../dto/order.dto";
 import { OfferService } from "../services/offer.service";
 import { asyncHandler } from "../utils/asyncHandlers";
@@ -42,11 +46,15 @@ export const approveOffer = asyncHandler(async (req: Request, res: Response) => 
   res.status(200).json(toOrderResponse(order));
 });
 
-export const getSellerPendingOffers = asyncHandler(
-  async (req: Request, res: Response) => {
-    const sellerId = req.user._id.toString();
-    const pendingOffers = await OfferService.getSellerPendingOffers(sellerId);
+export const getSellerPendingOffers = asyncHandler(async (req: Request, res: Response) => {
+  const sellerId = req.user._id.toString();
+  const pendingOffers = await OfferService.getSellerPendingOffers(sellerId);
 
-    res.status(200).json(toPendingSellerOffersResponse(pendingOffers));
-  }
-);
+  res.status(200).json(toPendingSellerOffersResponse(pendingOffers));
+});
+
+export const getBuyerPendingOffers = asyncHandler(async (req: Request, res: Response) => {
+  const buyerId = req.user._id;
+  const pendingOffers = await OfferService.getBuyerPendingOffers(buyerId);
+  res.status(200).json(toPendingBuyerOffersResponse(pendingOffers));
+});
