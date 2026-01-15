@@ -20,3 +20,21 @@ export const toPendingSellerOffersResponse = (offers: any[]) => {
     },
   }));
 };
+
+export const toPendingBuyerOffersResponse = (offers: any[]) => { 
+  return offers.map((offer) => ({
+    id: offer._id,
+    status: offer.status,
+    buyerId: offer.buyer,
+    buyerNote: offer.buyerNote,
+    createdAt: offer.createdAt,
+    listing: {
+      id: offer.listing._id,
+      name: offer.listing.name,
+      price: offer.listing.price,
+      images: offer.listing.images,
+      condition: offer.listing.condition,
+      sellerName: offer.listing.seller.name,
+    }
+  }));
+}

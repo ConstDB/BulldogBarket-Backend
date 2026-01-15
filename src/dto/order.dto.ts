@@ -42,7 +42,8 @@ export const toBuyerOrdersResponse = (orders: any[]) => {
     totalPrice: order.totalPrice,
     paymentMethod: order.paymentMethod,
     status: order.status,
-    ...(order.listing.type === "single" && { condition: order.condition }),
+    buyerConfirmed: order.buyerConfirmed,
+    sellerConfirmed: order.sellerConfirmed,
     listing: {
       id: order.listing._id,
       type: order.listing.type,

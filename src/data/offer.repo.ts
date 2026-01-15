@@ -59,4 +59,20 @@ export const OfferRepository = {
 
     return pendingOffers;
   },
+
+  getBuyerOffers: async (buyerId: Types.ObjectId) => {
+    const pendingOffers = await OfferModel.find({ buyer: buyerId, status: "pending" })
+      .select("listing buyer buyerNote status createdAt")
+      .populate({
+        path: "listing",
+        select: "seller name condition price images",
+        populate: {
+          path: "seller",
+          select: "name",
+        },
+      })
+      .lean();
+
+    return pendingOffers;
+  },
 };
